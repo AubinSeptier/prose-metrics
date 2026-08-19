@@ -1,0 +1,51 @@
+# Bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.coverage
+.coverage.*
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+.uv/
+.venv*/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+.wheelhouse/
+
+# Packaging / local metadata
+*.tar.gz
+*.whl
+
+# IDE / editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test and tooling output
+.tox/
+.nox/
+coverage.xml
+pytest.xml
+
+# uv local cache (optional, usually not committed)
+.uv_cache/
