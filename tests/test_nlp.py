@@ -1,5 +1,6 @@
 """Unit tests for the NLP pipeline module."""
 
+from collections.abc import Generator
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -10,10 +11,12 @@ from prose_metrics.nlp.pipeline import SpacyPipelineManager
 
 
 @pytest.fixture(autouse=True)
-def reset_manager() -> None:
+def reset_manager() -> Generator[None, None, None]:
     """Reset manager singleton state before each test."""
     manager = SpacyPipelineManager()
     manager.clear_cache()
+    yield
+    manager.clear_cache()  # Ensure cleanup after test
 
 
 def test_singleton_identity() -> None:
