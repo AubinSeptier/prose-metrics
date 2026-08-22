@@ -67,6 +67,9 @@ ignore = [
     "N812",
 ]
 
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101", "B010"]
+
 [tool.ruff.lint.isort]
 section-order = [
     "future",
