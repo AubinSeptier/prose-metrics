@@ -1,5 +1,6 @@
 """Thread-safe caching and loading of spaCy pipelines, optimized for text analysis tasks."""
 
+import _thread
 import threading
 from typing import ClassVar
 
@@ -23,7 +24,7 @@ class SpacyPipelineManager:
     DEFAULT_DISABLED_COMPONENTS: ClassVar[tuple[str, ...]] = ("ner",)
 
     _instance: ClassVar["SpacyPipelineManager | None"] = None
-    _lock: ClassVar[threading.Lock] = threading.Lock()
+    _lock: ClassVar[_thread.LockType] = threading.Lock()
     _loaded_pipelines: dict[str, Language]
 
     def __new__(cls) -> "SpacyPipelineManager":
