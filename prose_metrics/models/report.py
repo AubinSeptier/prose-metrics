@@ -64,7 +64,7 @@ class StyleMetrics:
         adjective_ratio (float): Proportion of adjectives relative to total words.
         adverb_ratio (float): Proportion of adverbs relative to total words.
         pronoun_ratio (float): Proportion of pronouns relative to total words.
-        adverbs_manner_count (int): Count of manner adverbs (ending in "-ly" or "-ment").
+        adverbs_manner_count (int): Count of manner adverbs detected via syntactic and lexical rules.
         pos_distribution (dict[str, int]): Raw count of universal POS tags.
     """
 
