@@ -122,20 +122,20 @@ class TextReport:
     Attributes:
         language (str): Detected or specified language code (ISO 639-1, e.g., "en" for English).
         execution_time_seconds (float): Total processing time in seconds.
-        volume (VolumeMetrics): Volumetric measurements of the text.
-        rhythm (RhythmMetrics): Rhythm and sentence structure dispersion metrics.
-        style (StyleMetrics): Stylistic and grammatical distribution metrics.
-        vocabulary (VocabularyMetrics): Lexical richness and vocabulary metrics.
-        readability (ReadabilityMetrics): Readability and accessibility metrics.
+        volume (VolumeMetrics | None): Volumetric measurements of the text.
+        rhythm (RhythmMetrics | None): Rhythm and sentence structure dispersion metrics.
+        style (StyleMetrics | None): Stylistic and grammatical distribution metrics.
+        vocabulary (VocabularyMetrics | None): Lexical richness and vocabulary metrics.
+        readability (ReadabilityMetrics | None): Readability and accessibility metrics.
     """
 
     language: str
     execution_time_seconds: float
-    volume: VolumeMetrics
-    rhythm: RhythmMetrics
-    style: StyleMetrics
-    vocabulary: VocabularyMetrics
-    readability: ReadabilityMetrics
+    volume: VolumeMetrics | None = None
+    rhythm: RhythmMetrics | None = None
+    style: StyleMetrics | None = None
+    vocabulary: VocabularyMetrics | None = None
+    readability: ReadabilityMetrics | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """Convert the TextReport dataclass and all nested dataclasses to a dictionary.

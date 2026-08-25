@@ -1,13 +1,35 @@
-"""This module serves as the entry point for the prose-metrics package.
+"""This module serves as the entry point for the prose-metrics package."""
 
-This function can be used to verify that the package is correctly installed and functioning as expected.
-"""
+from importlib.metadata import PackageNotFoundError, version
 
+from prose_metrics.analyzer import TextAnalyzer, analyze
+from prose_metrics.models.report import (
+    ReadabilityMetrics,
+    RhythmMetrics,
+    StyleMetrics,
+    TextReport,
+    VocabularyMetrics,
+    VolumeMetrics,
+)
+from prose_metrics.nlp.exceptions import ModelNotFoundError, NLPError
+from prose_metrics.nlp.pipeline import SpacyPipelineManager
 
-def hello() -> str:
-    """A simple dummy function that returns a greeting message.
+try:
+    __version__ = version("prose-metrics")
+except PackageNotFoundError:
+    __version__ = "0.0.0"  # Package is not installed
 
-    Returns:
-        str: A greeting message.
-    """
-    return "Hello from prose-metrics!"
+__all__ = [
+    "TextAnalyzer",
+    "analyze",
+    "ReadabilityMetrics",
+    "RhythmMetrics",
+    "StyleMetrics",
+    "TextReport",
+    "VocabularyMetrics",
+    "VolumeMetrics",
+    "ModelNotFoundError",
+    "NLPError",
+    "SpacyPipelineManager",
+    "__version__",
+]
