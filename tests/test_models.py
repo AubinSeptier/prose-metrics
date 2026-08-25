@@ -58,7 +58,7 @@ def sample_report() -> TextReport:
         readability=ReadabilityMetrics(
             flesch_reading_ease=75.5,
             flesch_kincaid_grade=6.2,
-            gunning_frog=8.4,
+            gunning_fog=8.4,
             estimated_reading_time_minutes=1.0,
         ),
     )
