@@ -105,13 +105,13 @@ class ReadabilityMetrics:
     Attributes:
         flesch_reading_ease (float): Flesch Reading Ease score (higher is easier to read).
         flesch_kincaid_grade (float): Flesch-Kincaid Grade Level.
-        gunning_frog (float): Gunning Fog Index.
+        gunning_fog (float): Gunning Fog Index.
         estimated_reading_time_minutes (float): Reading time estimate in minutes based on average reading speed.
     """
 
     flesch_reading_ease: float
     flesch_kincaid_grade: float
-    gunning_frog: float
+    gunning_fog: float
     estimated_reading_time_minutes: float
 
 
