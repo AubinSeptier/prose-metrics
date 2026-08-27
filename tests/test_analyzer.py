@@ -107,3 +107,36 @@ def test_analyze_french_test() -> None:
     data = report.to_dict()
     assert isinstance(data, dict)
     assert data["volume"]["word_count"] == report.volume.word_count
+
+
+def test_invalid_metric_name_raises_value_error_with_analyzer() -> None:
+    """Check passing unknown metric name raises ValueError using analyzer function."""
+    text = "This is a test sentence."
+
+    with pytest.raises(ValueError, match=r"Invalid metric\(s\): \['unknown_metric'\]"):
+        analyze(text, language="en", metrics=["volume", "unknown_metric"])  # type: ignore
+
+
+def test_analyze_english_test_with_parsed_doc(nlp: Language) -> None:
+    """Check complete analysis English pipeline using a pre-parsed spaCy Doc."""
+    text = (
+        "Fog enveloped the cliff. “We have to leave,” he whispered fearfully. "
+        "The waves crashed violently against the black rocks below. "
+        "Night was falling inexorably over the abandoned kingdom."
+    )
+    doc = nlp(text)
+    report = analyze(text, doc=doc, language="en")
+
+    assert isinstance(report, TextReport)
+    assert report.language == "en"
+    assert report.execution_time_seconds > 0.0
+
+    assert report.volume is not None
+    assert report.rhythm is not None
+    assert report.style is not None
+    assert report.vocabulary is not None
+    assert report.readability is not None
+
+    data = report.to_dict()
+    assert isinstance(data, dict)
+    assert data["volume"]["word_count"] == report.volume.word_count
