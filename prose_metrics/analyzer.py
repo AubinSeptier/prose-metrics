@@ -70,12 +70,17 @@ class TextAnalyzer:
             TextReport: A dataclass containing all computed metrics and analysis metadata.
 
         Raises:
-            ValueError: If an unknown metric name is provided.
+            ValueError: If the metrics argument is invalid, i.e., not a valid metric name or sequence of metric names.
         """
         start_time = time.perf_counter()
 
         # Resolve metrics to compute
-        if metrics == "all" or not metrics:
+        if isinstance(metrics, str):
+            if metrics != "all":
+                msg = f"Invalid metrics argument: {metrics!r}. Use 'all' or a sequence of metric names."
+                raise ValueError(msg)
+            selected_metrics = AVAILABLE_METRICS
+        elif not metrics:
             selected_metrics = AVAILABLE_METRICS
         else:
             invalid_metrics = set(metrics) - AVAILABLE_METRICS

@@ -166,3 +166,11 @@ def test_analyze_test_with_empty_metrics_list() -> None:
     assert report.style.noun_ratio >= 0.0
     assert report.vocabulary.unique_word_count > 0
     assert report.readability.flesch_reading_ease > 0.0
+
+
+def test_invalid_metric_string_name_raises_value_error() -> None:
+    """Check passing unknown metric name raises ValueError using analyzer function."""
+    text = "This is a test sentence."
+
+    with pytest.raises(ValueError, match=r"Invalid metrics argument: 'volume'"):
+        analyze(text, language="en", metrics="volume")  # type: ignore
