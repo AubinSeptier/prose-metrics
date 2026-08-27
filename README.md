@@ -45,7 +45,7 @@ from prose_metrics import analyze
 
 text = (
     "The night was cold. She walked quickly through the empty street, "
-    "wondering whether anyone had noticed. \"Who is there?\" she asked."
+    "wondering whether anyone had noticed. « Who is there? » she asked."
 )
 
 report = analyze(text, language="en")
