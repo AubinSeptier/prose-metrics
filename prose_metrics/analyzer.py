@@ -53,6 +53,9 @@ class TextAnalyzer:
         metrics: Sequence[MetricName] | Literal["all"] = "all",
         mattr_window_size: int = 100,
         words_per_minute: int = 200,
+        short_threshold: int = 10,
+        long_threshold: int = 30,
+        use_lemmas: bool = True,
     ) -> TextReport:
         """Analyze a given text and generate a structure TextReport.
 
@@ -65,6 +68,9 @@ class TextAnalyzer:
                 all metrics will be computed.
             mattr_window_size (int): Window size for MATTR calculation. Defaults to 100.
             words_per_minute (int): Reading speed for reading time estimation. Defaults to 200.
+            short_threshold (int): Upper word count bound for short sentences (< threshold). Defaults to 10 words.
+            long_threshold (int): Lower word count bound for long sentences (> threshold). Defaults to 30 words.
+            use_lemmas (bool): If True, uses normalized lemmas. If False, uses raw lower tokens. Defaults to True.
 
         Returns:
             TextReport: A dataclass containing all computed metrics and analysis metadata.
@@ -107,13 +113,21 @@ class TextAnalyzer:
             volume_metrics = compute_volume_metrics(text=text, doc=parsed_doc)
 
         if "rhythm" in selected_metrics:
-            rhythm_metrics = compute_rhythm_metrics(doc=parsed_doc)
+            rhythm_metrics = compute_rhythm_metrics(
+                doc=parsed_doc,
+                short_threshold=short_threshold,
+                long_threshold=long_threshold,
+            )
 
         if "style" in selected_metrics:
             style_metrics = compute_style_metrics(doc=parsed_doc)
 
         if "vocabulary" in selected_metrics:
-            vocabulary_metrics = compute_vocabulary_metrics(doc=parsed_doc, mattr_window_size=mattr_window_size)
+            vocabulary_metrics = compute_vocabulary_metrics(
+                doc=parsed_doc,
+                mattr_window_size=mattr_window_size,
+                use_lemmas=use_lemmas,
+            )
 
         if "readability" in selected_metrics:
             readability_metrics = compute_readability_metrics(
@@ -144,6 +158,9 @@ def analyze(
     metrics: Sequence[MetricName] | Literal["all"] = "all",
     mattr_window_size: int = 100,
     words_per_minute: int = 200,
+    short_threshold: int = 10,
+    long_threshold: int = 30,
+    use_lemmas: bool = True,
 ) -> TextReport:
     """Convenience function to analyze text without explicitly creating a TextAnalyzer instance.
 
@@ -157,6 +174,9 @@ def analyze(
             names ("readability", "rhythm", "style", "vocabulary", "volume").
         mattr_window_size (int): Window size for MATTR calculation. Defaults to 100.
         words_per_minute (int): Reading speed for reading time estimation. Defaults to 200.
+        short_threshold (int): Upper word count bound for short sentences (< threshold). Defaults to 10 words.
+        long_threshold (int): Lower word count bound for long sentences (> threshold). Defaults to 30 words.
+        use_lemmas (bool): If True, uses normalized lemmas. If False, uses raw lower tokens. Defaults to True.
 
     Returns:
         TextReport: A dataclass containing all computed metrics and analysis metadata.
@@ -171,4 +191,7 @@ def analyze(
         metrics=metrics,
         mattr_window_size=mattr_window_size,
         words_per_minute=words_per_minute,
+        short_threshold=short_threshold,
+        long_threshold=long_threshold,
+        use_lemmas=use_lemmas,
     )

@@ -174,3 +174,21 @@ def test_invalid_metric_string_name_raises_value_error() -> None:
 
     with pytest.raises(ValueError, match=r"Invalid metrics argument: 'volume'"):
         analyze(text, language="en", metrics="volume")  # type: ignore
+
+
+def test_analyze_english_test_with_custom_metrics(nlp: Language) -> None:
+    """Check complete analysis English pipeline using custom parameters: short_threshold, long_threshold, use_lemmas."""
+    text = (
+        "Fog enveloped the cliff. “We have to leave,” he whispered fearfully. "
+        "The waves crashed violently against the black rocks below. "
+        "Night was falling inexorably over the abandoned kingdom."
+    )
+    doc = nlp(text)
+    report = analyze(text, doc=doc, language="en", short_threshold=5, long_threshold=50, use_lemmas=False)
+
+    assert report.rhythm is not None
+    assert report.vocabulary is not None
+
+    assert report.rhythm.short_sentence_ratio == 0.25
+    assert report.rhythm.long_sentence_ratio == 0.0
+    assert report.vocabulary.unique_word_count > 0
