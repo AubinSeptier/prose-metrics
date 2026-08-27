@@ -66,7 +66,7 @@ def test_invalid_metric_name_raises_value_error() -> None:
 
 
 def test_performance_3000_words(nlp: Language) -> None:
-    """Check performanc test ensuring 3,000 words are processed in under 1 second."""
+    """Check performance test ensuring 3,000 words are processed in under 1 second."""
     # Warm up the spaCy pipeline
     _ = nlp
 
