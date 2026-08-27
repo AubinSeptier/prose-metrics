@@ -9,11 +9,11 @@ authors = [
 ]
 requires-python = ">=3.12,<3.14"
 dependencies = [
-    "spacy>=3.8.15",
-    "textstat>=0.7.13",
+    "spacy>=3.8.15,<4.0",
+    "textstat>=0.7.13,<0.8.0",
 ]
 classifiers = [
-	"Development Status :: 2 - Pre-Alpha",
+	"Development Status :: 3 - Alpha",
 	"Intended Audience :: Developers",
 	"Intended Audience :: Science/Research",
 	"Topic :: Text Processing :: Linguistic",
@@ -23,13 +23,16 @@ classifiers = [
 	"Programming Language :: Python :: 3.13",
 	"Programming Language :: Python :: Implementation :: CPython",
 	"Operating System :: OS Independent",
-	"Typing :: Typed",
-	"License :: OSI Approved :: MIT License"
+	"Typing :: Typed"
 ]
 
 [tool.uv.build-backend]
 module-root = ""
 module-name = "prose_metrics"
+
+[tool.uv.sources]
+en-core-web-sm = { url = "https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl" }
+fr-core-news-sm = { url = "https://github.com/explosion/spacy-models/releases/download/fr_core_news_sm-3.8.0/fr_core_news_sm-3.8.0-py3-none-any.whl" }
 
 [build-system]
 requires = ["uv_build>=0.11.33,<0.12.0"]
@@ -38,6 +41,8 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "commitizen>=4.17.0",
+    "en-core-web-sm",
+    "fr-core-news-sm",
     "pre-commit>=4.6.2",
     "pytest>=9.1.1",
     "ruff>=0.16.3",
@@ -66,6 +71,9 @@ ignore = [
     "COM812",
     "N812",
 ]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = ["S101", "B010"]
 
 [tool.ruff.lint.isort]
 section-order = [
