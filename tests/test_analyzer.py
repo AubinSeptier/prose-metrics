@@ -140,3 +140,29 @@ def test_analyze_english_test_with_parsed_doc(nlp: Language) -> None:
     data = report.to_dict()
     assert isinstance(data, dict)
     assert data["volume"]["word_count"] == report.volume.word_count
+
+
+def test_analyze_test_with_empty_metrics_list() -> None:
+    """Check complete analysis English pipeline with an empty metrics list."""
+    text = (
+        "Fog enveloped the cliff. “We have to leave,” he whispered fearfully. "
+        "The waves crashed violently against the black rocks below. "
+        "Night was falling inexorably over the abandoned kingdom."
+    )
+    report = analyze(text, language="en", metrics=[])
+
+    assert isinstance(report, TextReport)
+    assert report.language == "en"
+    assert report.execution_time_seconds > 0.0
+
+    assert report.volume is not None
+    assert report.rhythm is not None
+    assert report.style is not None
+    assert report.vocabulary is not None
+    assert report.readability is not None
+
+    assert report.volume.word_count > 0
+    assert report.rhythm.avg_sentence_length > 0
+    assert report.style.noun_ratio >= 0.0
+    assert report.vocabulary.unique_word_count > 0
+    assert report.readability.flesch_reading_ease > 0.0
