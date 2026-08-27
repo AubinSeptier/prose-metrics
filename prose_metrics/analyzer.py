@@ -61,7 +61,8 @@ class TextAnalyzer:
             doc (Doc | None): Optional pre-parsed spaCy Doc object to bypass re-tokenization. If None, the text will be
                 parsed using the spaCy pipeline.
             metrics (Sequence[MetricName] | Literal["all"]): Metrics to calculate. Either 'all' or a sequence of metric
-                names ("readability", "rhythm", "style", "vocabulary", "volume").
+                names ("readability", "rhythm", "style", "vocabulary", "volume"). If an empty list is provided,
+                all metrics will be computed.
             mattr_window_size (int): Window size for MATTR calculation. Defaults to 100.
             words_per_minute (int): Reading speed for reading time estimation. Defaults to 200.
 
@@ -74,7 +75,7 @@ class TextAnalyzer:
         start_time = time.perf_counter()
 
         # Resolve metrics to compute
-        if metrics == "all":
+        if metrics == "all" or not metrics:
             selected_metrics = AVAILABLE_METRICS
         else:
             invalid_metrics = set(metrics) - AVAILABLE_METRICS
