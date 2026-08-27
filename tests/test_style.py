@@ -13,6 +13,12 @@ def nlp() -> Language:
     return SpacyPipelineManager().get_pipeline(language="en")
 
 
+@pytest.fixture(scope="module")
+def nlp_fr() -> Language:
+    """Provide a cached spaCy pipeline for French tests."""
+    return SpacyPipelineManager().get_pipeline(language="fr")
+
+
 def test_empty_text_style(nlp: Language) -> None:
     """Check metrics on empty and whitespace-only text."""
     text = "   \n\n  "
@@ -88,7 +94,7 @@ def test_irregular_manner_adverbs(nlp: Language) -> None:
     assert metrics.adverbs_manner_count == 2
 
 
-def test_non_manner_adverbs(nlp: Language) -> None:
+def test_english_non_manner_adverbs(nlp: Language) -> None:
     """Check -ly adverbs of time and intensity are excluded."""
     text = "He hardly walked. I finally arrived home."
     doc = nlp(text)
@@ -113,3 +119,35 @@ def test_flat_adverb_tagged_adjective(nlp: Language) -> None:
     metrics = compute_style_metrics(doc)
 
     assert metrics.adverbs_manner_count == 1
+
+
+def test_french_manner_adverbs_and_false_positives(nlp_fr: Language) -> None:
+    """Check detection of French manner adverbs while ignoring nouns ending in -ly."""
+    text = "Cette charmante famille est entrée rapidement et silencieusement dans la maison."
+    doc = nlp_fr(text)
+    metrics = compute_style_metrics(doc)
+
+    assert metrics.adverbs_manner_count == 2
+    assert metrics.adverb_ratio > 0.0
+    assert metrics.noun_ratio > 0.0
+    assert metrics.adjective_ratio > 0.0
+    assert metrics.verb_ratio > 0.0
+    assert "NOUN" in metrics.pos_distribution
+
+
+def test_french_non_manner_adverbs(nlp_fr: Language) -> None:
+    """Check -ment adverbs of time and intensity are excluded."""
+    text = "J'ai énormément marché. Je suis enfin arrivé à la maison."
+    doc = nlp_fr(text)
+    metrics = compute_style_metrics(doc)
+
+    assert metrics.adverbs_manner_count == 0
+
+
+def test_french_irregular_manner_adverbs(nlp_fr: Language) -> None:
+    """Check irregular French manner adverbs without the -ment suffix are counted."""
+    text = "Elle chante bien. Il marche vite."
+    doc = nlp_fr(text)
+    metrics = compute_style_metrics(doc)
+
+    assert metrics.adverbs_manner_count == 2

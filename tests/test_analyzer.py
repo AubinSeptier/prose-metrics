@@ -14,7 +14,7 @@ def nlp() -> Language:
     return SpacyPipelineManager().get_pipeline(language="en")
 
 
-def test_analyze_englist_test() -> None:
+def test_analyze_english_test() -> None:
     """Check complete analysis English pipeline."""
     text = (
         "Fog enveloped the cliff. “We have to leave,” he whispered fearfully. "
@@ -83,3 +83,27 @@ def test_performance_3000_words(nlp: Language) -> None:
     assert report.volume is not None
     assert report.volume.word_count >= 3000, f"Word count too low: {report.volume.word_count}"
     assert report.execution_time_seconds < 1.0, f"Execution time exceeded: {report.execution_time_seconds}s"
+
+
+def test_analyze_french_test() -> None:
+    """Check complete analysis French pipeline."""
+    text = (
+        "Le brouillard enveloppait la falaise. « Il faut qu’on parte », murmura-t-il, effrayé. "
+        "Les vagues se brisaient violemment contre les rochers noirs en contrebas. "
+        "La nuit tombait inexorablement sur le royaume abandonné."
+    )
+    report = analyze(text, language="fr")
+
+    assert isinstance(report, TextReport)
+    assert report.language == "fr"
+    assert report.execution_time_seconds > 0.0
+
+    assert report.volume is not None
+    assert report.rhythm is not None
+    assert report.style is not None
+    assert report.vocabulary is not None
+    assert report.readability is not None
+
+    data = report.to_dict()
+    assert isinstance(data, dict)
+    assert data["volume"]["word_count"] == report.volume.word_count
