@@ -36,7 +36,7 @@ class TextAnalyzer:
         language: str = "en",
         model_name: str | None = None,
     ) -> None:
-        """Initialize the analyzer with a specific language of model.
+        """Initialize the analyzer with a specific language or model.
 
         Args:
             language (str): Target language code (ISO 639-1, e.g., "en" for English). Default is "en".
@@ -77,6 +77,7 @@ class TextAnalyzer:
 
         Raises:
             ValueError: If the metrics argument is invalid, i.e., not a valid metric name or sequence of metric names.
+                Or if mattr_window_size or words_per_minute is less than 1.
         """
         start_time = time.perf_counter()
 
@@ -182,7 +183,8 @@ def analyze(
         TextReport: A dataclass containing all computed metrics and analysis metadata.
 
     Raises:
-        ValueError: If an unknown metric name is provided.
+        ValueError: If the metrics argument is invalid, i.e., not a valid metric name or sequence of metric names.
+            Or if mattr_window_size or words_per_minute is less than 1.
     """
     analyzer = TextAnalyzer(language=language, model_name=model_name)
     return analyzer.analyze(
