@@ -13,6 +13,12 @@ def nlp() -> Language:
     return SpacyPipelineManager().get_pipeline(language="en")
 
 
+@pytest.fixture(scope="module")
+def nlp_fr() -> Language:
+    """Provide a cached spaCy pipeline for French tests."""
+    return SpacyPipelineManager().get_pipeline(language="fr")
+
+
 def test_empty_text(nlp: Language) -> None:
     """Check metrics on empty and whitespace-only text."""
     text = "   \n\n  "
@@ -29,13 +35,13 @@ def test_empty_text(nlp: Language) -> None:
     assert metrics.dialogue_ratio == 0.0
 
 
-def test_french_guillemets_dialogue(nlp: Language) -> None:
+def test_french_guillemets_dialogue(nlp_fr: Language) -> None:
     """Check dialogue detection with French guillemets (« »)."""
-    text = "The knight stepped forward. « Halt! » shouted the guard."
-    doc = nlp(text)
+    text = "Le chevalier s'avança. « Halte! » cria le garde."
+    doc = nlp_fr(text)
     metrics = compute_volume_metrics(text, doc)
 
-    assert metrics.sentence_count == 2
+    assert metrics.sentence_count == 3
     assert metrics.paragraph_count == 1
     assert metrics.dialogue_word_count == 1
     assert metrics.narrative_word_count == metrics.word_count - 1

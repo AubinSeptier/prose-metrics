@@ -13,6 +13,12 @@ def nlp() -> Language:
     return SpacyPipelineManager().get_pipeline(language="en")
 
 
+@pytest.fixture(scope="module")
+def nlp_fr() -> Language:
+    """Provide a cached spaCy pipeline for French tests."""
+    return SpacyPipelineManager().get_pipeline(language="fr")
+
+
 def test_empty_text_readability(nlp: Language) -> None:
     """Check degenerate and empty text returns 0.0 without exceptions."""
     text = "   \n\n ... "
@@ -111,3 +117,19 @@ def test_concurrent_multilingual_readability(nlp: Language) -> None:
     for thread in threads:
         thread.join()
     assert not errors
+
+
+def test_french_readability(nlp_fr: Language) -> None:
+    """Check readability calculation on French narrative text."""
+    text = (
+        "Le renard brun et vif a sauté avec agilité par-dessus le chien paresseux qui dormait. "
+        "C'était une matinée radieuse et ensoleillée, en plein printemps. "
+        "Tout était calme et paisible dans la forêt."
+    )
+    doc = nlp_fr(text)
+    metrics = compute_readability_metrics(text, doc, language="fr")
+
+    assert metrics.flesch_reading_ease > 0.0
+    assert metrics.flesch_kincaid_grade > 0.0
+    assert metrics.gunning_fog == 0.0
+    assert metrics.estimated_reading_time_minutes > 0.0
