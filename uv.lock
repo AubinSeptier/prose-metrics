@@ -653,8 +653,8 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "spacy", specifier = ">=3.8.15" },
-    { name = "textstat", specifier = ">=0.7.13" },
+    { name = "spacy", specifier = ">=3.8.15,<4.0" },
+    { name = "textstat", specifier = ">=0.7.13,<0.8.0" },
 ]
 
 [package.metadata.requires-dev]

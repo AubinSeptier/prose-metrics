@@ -9,11 +9,11 @@ authors = [
 ]
 requires-python = ">=3.12,<3.14"
 dependencies = [
-    "spacy>=3.8.15",
-    "textstat>=0.7.13",
+    "spacy>=3.8.15,<4.0",
+    "textstat>=0.7.13,<0.8.0",
 ]
 classifiers = [
-	"Development Status :: 2 - Pre-Alpha",
+	"Development Status :: 3 - Alpha",
 	"Intended Audience :: Developers",
 	"Intended Audience :: Science/Research",
 	"Topic :: Text Processing :: Linguistic",
@@ -23,8 +23,7 @@ classifiers = [
 	"Programming Language :: Python :: 3.13",
 	"Programming Language :: Python :: Implementation :: CPython",
 	"Operating System :: OS Independent",
-	"Typing :: Typed",
-	"License :: OSI Approved :: MIT License"
+	"Typing :: Typed"
 ]
 
 [tool.uv.build-backend]
