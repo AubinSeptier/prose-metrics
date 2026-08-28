@@ -10,7 +10,7 @@ A static, deterministic analyzer for literary fiction and plain prose.
 - **Zero I/O:** the package never reads files from disk; it analyzes only `str` values passed in memory.
 - **Deterministic:** the same input text and settings always produce the same report.
 - **Minimalist data model:** results are returned as native frozen `dataclasses` (`slots=True`) — no Pydantic or other infrastructure dependencies.
-- **Bilingual focus:** optimized for English (`en`) and French (`fr`) texts.
+- **Supported languages:** optimized for English (`en`) and French (`fr`) texts (other languages may work but are not guaranteed to be accurate, especially for complex linguistic features).
 
 ## Requirements
 
@@ -19,6 +19,8 @@ A static, deterministic analyzer for literary fiction and plain prose.
 - Default spaCy language models (installed separately):
   - English: `en_core_web_sm`
   - French: `fr_core_news_sm`
+
+*Notes: You can install additional spaCy models for other languages as needed or override the default model selection. Small and fast models are chosen by default for performance and resource efficiency.*
 
 ## Installation
 
@@ -151,6 +153,8 @@ Note: readability scores are computed via `textstat`; the Gunning Fog index is r
 - `prose_metrics.nlp.pipeline` — a thread-safe singleton `SpacyPipelineManager` that caches spaCy pipelines and disables unnecessary components (by default, `ner`) for performance.
 - `prose_metrics.nlp.exceptions` — package-specific exceptions.
 
-## License
+## License & GenAI use
 
 MIT — see [LICENSE](LICENSE) for details.
+
+Generative AI (GenAI) is used for development, both for code generation assistance and documentation. The package itself does not use GenAI at runtime; all analysis is deterministic and performed locally without network calls.
