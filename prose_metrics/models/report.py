@@ -142,5 +142,14 @@ class TextReport:
 
         Returns:
             dict: A dictionary representation of the TextReport.
+
+        Examples:
+            >>> from prose_metrics import analyze
+            >>> report = analyze("The cat sat on the mat.")
+            >>> data = report.to_dict()
+            >>> data["volume"]["word_count"]
+            6
+            >>> sorted(data.keys())
+            ['execution_time_seconds', 'language', 'readability', 'rhythm', 'style', 'vocabulary', 'volume']
         """
         return asdict(self)

@@ -38,6 +38,20 @@ def compute_readability_metrics(
 
     Raises:
         ValueError: If words_per_minute is less than 1 or if the specified language is not supported.
+
+    Examples:
+        >>> from prose_metrics.nlp.pipeline import SpacyPipelineManager
+        >>> text = "The cat sat on the mat."
+        >>> doc = SpacyPipelineManager().get_pipeline("en")(text)
+        >>> metrics = compute_readability_metrics(text, doc)
+        >>> metrics.flesch_reading_ease
+        116.15
+        >>> metrics.flesch_kincaid_grade
+        -1.45
+        >>> metrics.gunning_fog
+        2.4
+        >>> metrics.estimated_reading_time_minutes
+        0.03
     """
     lang = language.lower()
     if lang not in SUPPORTED_LANGUAGES:

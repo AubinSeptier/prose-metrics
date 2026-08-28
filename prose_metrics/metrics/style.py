@@ -195,6 +195,18 @@ def compute_style_metrics(doc: Doc) -> StyleMetrics:
 
     Returns:
         StyleMetrics: An instance containing POS ratios, manner adverbs count, and tag distribution.
+
+    Examples:
+        >>> from prose_metrics.nlp.pipeline import SpacyPipelineManager
+        >>> nlp = SpacyPipelineManager().get_pipeline("en")
+        >>> doc = nlp("She quickly ran to the big house and waited outside.")
+        >>> metrics = compute_style_metrics(doc)
+        >>> metrics.verb_ratio
+        0.2
+        >>> metrics.adverbs_manner_count
+        1
+        >>> metrics.pos_distribution["ADV"]
+        2
     """
     language = doc.lang_
     pos_counter: Counter[str] = Counter()

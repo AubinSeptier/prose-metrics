@@ -29,7 +29,16 @@ AVAILABLE_METRICS: Final[frozenset[MetricName]] = frozenset({"readability", "rhy
 
 
 class TextAnalyzer:
-    """Main analyzer coordinating NLP parsing and metric computations."""
+    """Main analyzer coordinating NLP parsing and metric computations.
+
+    Examples:
+        >>> analyzer = TextAnalyzer(language="en")
+        >>> report = analyzer.analyze("The cat sat on the mat.")
+        >>> report.volume.word_count
+        6
+        >>> report.language
+        'en'
+    """
 
     def __init__(
         self,
@@ -78,6 +87,17 @@ class TextAnalyzer:
         Raises:
             ValueError: If the metrics argument is invalid, i.e., not a valid metric name or sequence of metric names.
                 Or if mattr_window_size or words_per_minute is less than 1.
+
+        Examples:
+            >>> analyzer = TextAnalyzer(language="en")
+            >>> report = analyzer.analyze("The cat sat on the mat.", metrics=["volume", "readability"])
+            >>> report.style is None
+            True
+            >>> analyzer.analyze("The cat sat on the mat.", metrics=["unknown"])
+            Traceback (most recent call last):
+                ...
+            ValueError: Invalid metric(s): ['unknown']. Available metrics: ['volume', 'rhythm', 'style', 'vocabulary',
+                'readability']
         """
         start_time = time.perf_counter()
 
@@ -185,6 +205,13 @@ def analyze(
     Raises:
         ValueError: If the metrics argument is invalid, i.e., not a valid metric name or sequence of metric names.
             Or if mattr_window_size or words_per_minute is less than 1.
+
+    Examples:
+        >>> report = analyze("The cat sat on the mat.")
+        >>> report.volume.word_count
+        6
+        >>> report.readability.estimated_reading_time_minutes
+        0.03
     """
     analyzer = TextAnalyzer(language=language, model_name=model_name)
     return analyzer.analyze(
