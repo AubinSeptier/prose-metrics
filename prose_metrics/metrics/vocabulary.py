@@ -82,6 +82,22 @@ def compute_vocabulary_metrics(
 
     Raises:
         ValueError: If mattr_window_size is less than 1.
+
+    Examples:
+        >>> from prose_metrics.nlp.pipeline import SpacyPipelineManager
+        >>> nlp = SpacyPipelineManager().get_pipeline("en")
+        >>> doc = nlp("I run, he runs, she ran.")
+        >>> metrics = compute_vocabulary_metrics(doc)
+        >>> metrics.unique_word_count
+        4
+        >>> metrics.ttr
+        0.6667
+        >>> metrics.mattr
+        0.6667
+        >>> metrics.hapax_count
+        3
+        >>> compute_vocabulary_metrics(doc, use_lemmas=False).ttr
+        1.0
     """
     if mattr_window_size < 1:
         msg = f"mattr_window_size must be >= 1, got {mattr_window_size}"

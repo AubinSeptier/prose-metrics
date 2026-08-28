@@ -80,7 +80,7 @@ def _is_token_in_spans(token_idx: int, sorted_spans: list[tuple[int, int]], span
 
 
 def compute_volume_metrics(text: str, doc: Doc) -> VolumeMetrics:
-    """Compute all volumetric metrics from raw text and its parsed spaCy Doc.
+    r"""Compute all volumetric metrics from raw text and its parsed spaCy Doc.
 
     Args:
         text (str): The raw text string.
@@ -89,6 +89,20 @@ def compute_volume_metrics(text: str, doc: Doc) -> VolumeMetrics:
     Returns:
         VolumeMetrics: An instance containing all computed volumetric metrics (character, word,
             sentence, paragraph, dialogue word and narrative word count, and dialogue ratio).
+
+    Examples:
+        >>> from prose_metrics.nlp.pipeline import SpacyPipelineManager
+        >>> nlp = SpacyPipelineManager().get_pipeline("en")
+        >>> text = "She whispered, “Run now.”\nHe stayed."
+        >>> metrics = compute_volume_metrics(text, nlp(text))
+        >>> metrics.word_count
+        6
+        >>> metrics.sentence_count
+        2
+        >>> metrics.dialogue_word_count
+        2
+        >>> metrics.dialogue_ratio
+        0.3333
     """
     # Characters
     character_count = len(text)
