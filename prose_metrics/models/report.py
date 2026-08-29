@@ -139,6 +139,30 @@ class RepetitionMetrics:
 
 
 @dataclass(slots=True, frozen=True)
+class DialogueMetrics:
+    """Dialogue tag (parenthetical verb) metrics.
+
+    Reporting verbs governing dialogue lines are detected via curated speech-verb lexicons combined
+    with a proximity search around dialogue spans. Dash-style dialogues are not analyzed for tags,
+    their spans capture the full line, incise included.
+
+    Attributes:
+        dialogue_verb_count (int): Total number of unique reporting verbs detected next to dialogue spans.
+            Equal to neutral + expressive counts.
+        neutral_dialogue_verb_count (int): Reporting verbs from the neutral lexicon (e.g., say, ask).
+        expressive_dialogue_verb_count (int): Reporting verbs from the expressive (marked) lexicon (e.g., whisper,
+            retort).
+        neutral_dialogue_verb_ratio (float): Proportion of neutral reporting verbs over total reporting verbs
+            (0.0 to 1.0).
+    """
+
+    dialogue_verb_count: int
+    neutral_dialogue_verb_count: int
+    expressive_dialogue_verb_count: int
+    neutral_dialogue_verb_ratio: float
+
+
+@dataclass(slots=True, frozen=True)
 class TextReport:
     """Aggregated report containing all text metrics and analysis metadata.
 
@@ -151,6 +175,7 @@ class TextReport:
         vocabulary (VocabularyMetrics | None): Lexical richness and vocabulary metrics.
         readability (ReadabilityMetrics | None): Readability and accessibility metrics.
         repetition (RepetitionMetrics | None): Repetition and redundancy metrics.
+        dialogue (DialogueMetrics | None): Dialogue-specific metrics.
     """
 
     language: str
@@ -161,6 +186,7 @@ class TextReport:
     vocabulary: VocabularyMetrics | None = None
     readability: ReadabilityMetrics | None = None
     repetition: RepetitionMetrics | None = None
+    dialogue: DialogueMetrics | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """Convert the TextReport dataclass and all nested dataclasses to a dictionary.
@@ -175,7 +201,7 @@ class TextReport:
             >>> data["volume"]["word_count"]
             6
             >>> sorted(data.keys())
-            ['execution_time_seconds', 'language', 'readability', 'repetition', 'rhythm', 'style', 'vocabulary',
-            'volume']
+            ['dialogue', 'execution_time_seconds', 'language', 'readability', 'repetition', 'rhythm', 'style',
+            'vocabulary', 'volume']
         """
         return asdict(self)

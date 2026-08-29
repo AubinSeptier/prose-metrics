@@ -7,6 +7,7 @@ from typing import Final, Literal
 from spacy.tokens import Doc
 
 from prose_metrics.metrics import (
+    compute_dialogue_metrics,
     compute_readability_metrics,
     compute_repetition_metrics,
     compute_rhythm_metrics,
@@ -15,6 +16,7 @@ from prose_metrics.metrics import (
     compute_volume_metrics,
 )
 from prose_metrics.models.report import (
+    DialogueMetrics,
     ReadabilityMetrics,
     RepetitionMetrics,
     RhythmMetrics,
@@ -25,10 +27,10 @@ from prose_metrics.models.report import (
 )
 from prose_metrics.nlp.pipeline import SpacyPipelineManager
 
-MetricName = Literal["readability", "repetition", "rhythm", "style", "vocabulary", "volume"]
+MetricName = Literal["dialogue", "readability", "repetition", "rhythm", "style", "vocabulary", "volume"]
 
 AVAILABLE_METRICS: Final[frozenset[MetricName]] = frozenset(
-    {"readability", "repetition", "rhythm", "style", "vocabulary", "volume"}
+    {"dialogue", "readability", "repetition", "rhythm", "style", "vocabulary", "volume"}
 )
 
 
@@ -71,15 +73,15 @@ class TextAnalyzer:
         use_lemmas: bool = True,
         repetition_window_size: int = 50,
     ) -> TextReport:
-        """Analyze a given text and generate a structure TextReport.
+        """Analyze a given text and generate a structured TextReport.
 
         Args:
             text (str): The raw text string to analyze.
             doc (Doc | None): Optional pre-parsed spaCy Doc object to bypass re-tokenization. If None, the text will be
                 parsed using the spaCy pipeline.
             metrics (Sequence[MetricName] | Literal["all"]): Metrics to calculate. Either 'all' or a sequence of metric
-                names ("readability", "repetition", "rhythm", "style", "vocabulary", "volume"). If an empty list is
-                provided, all metrics will be computed.
+                names ("dialogue", "readability", "repetition", "rhythm", "style", "vocabulary", "volume"). If an empty
+                list is provided, all metrics will be computed.
             mattr_window_size (int): Window size for MATTR calculation. Defaults to 100.
             words_per_minute (int): Reading speed for reading time estimation. Defaults to 200.
             short_threshold (int): Upper word count bound for short sentences (< threshold). Defaults to 10 words.
@@ -103,8 +105,8 @@ class TextAnalyzer:
             >>> analyzer.analyze("The cat sat on the mat.", metrics=["unknown"])
             Traceback (most recent call last):
                 ...
-            ValueError: Invalid metric(s): ['unknown']. Available metrics: ['readability', 'repetition', 'rhythm',
-            'style', 'vocabulary', 'volume']
+            ValueError: Invalid metric(s): ['unknown']. Available metrics: ['dialogue', 'readability', 'repetition',
+            'rhythm', 'style', 'vocabulary', 'volume']
         """
         start_time = time.perf_counter()
 
@@ -137,6 +139,7 @@ class TextAnalyzer:
         vocabulary_metrics: VocabularyMetrics | None = None
         readability_metrics: ReadabilityMetrics | None = None
         repetition_metrics: RepetitionMetrics | None = None
+        dialogue_metrics: DialogueMetrics | None = None
 
         if "volume" in selected_metrics:
             volume_metrics = compute_volume_metrics(text=text, doc=parsed_doc)
@@ -173,6 +176,9 @@ class TextAnalyzer:
                 use_lemmas=use_lemmas,
             )
 
+        if "dialogue" in selected_metrics:
+            dialogue_metrics = compute_dialogue_metrics(text=text, doc=parsed_doc)
+
         execution_time = round(time.perf_counter() - start_time, 4)
 
         return TextReport(
@@ -184,6 +190,7 @@ class TextAnalyzer:
             vocabulary=vocabulary_metrics,
             readability=readability_metrics,
             repetition=repetition_metrics,
+            dialogue=dialogue_metrics,
         )
 
 
@@ -209,7 +216,7 @@ def analyze(
         doc (Doc | None): Optional pre-parsed spaCy Doc object to bypass re-tokenization. If None, the text will be
             parsed using the spaCy pipeline.
         metrics (Sequence[MetricName] | Literal["all"]): Metrics to calculate. Either 'all' or a sequence of metric
-            names ("readability", "repetition", "rhythm", "style", "vocabulary", "volume").
+            names ("dialogue", "readability", "repetition", "rhythm", "style", "vocabulary", "volume").
         mattr_window_size (int): Window size for MATTR calculation. Defaults to 100.
         words_per_minute (int): Reading speed for reading time estimation. Defaults to 200.
         short_threshold (int): Upper word count bound for short sentences (< threshold). Defaults to 10 words.
