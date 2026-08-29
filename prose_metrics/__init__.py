@@ -5,6 +5,7 @@ from importlib.metadata import PackageNotFoundError, version
 from prose_metrics.analyzer import TextAnalyzer, analyze
 from prose_metrics.models.report import (
     ReadabilityMetrics,
+    RepetitionMetrics,
     RhythmMetrics,
     StyleMetrics,
     TextReport,
@@ -23,6 +24,7 @@ __all__ = [
     "TextAnalyzer",
     "analyze",
     "ReadabilityMetrics",
+    "RepetitionMetrics",
     "RhythmMetrics",
     "StyleMetrics",
     "TextReport",

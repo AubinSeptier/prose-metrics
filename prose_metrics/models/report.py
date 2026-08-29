@@ -116,6 +116,29 @@ class ReadabilityMetrics:
 
 
 @dataclass(slots=True, frozen=True)
+class RepetitionMetrics:
+    """Close lexical repetition metrics.
+
+    Repetitions are detected over content words only (nouns, adjectives, verbs, and adverbs) using lemmas by default.
+    Distances are measured in content-word positions, not raw tokens.
+
+    Attributes:
+        repetition_density (float): Proportion of close repetitions over lexical words (0.0 to 1.0).
+        close_repetition_count (int): Number of content-word occurrences repeating a word already seen within
+            the window. Only the second and subsequent occurrences are counted.
+        lexical_word_count (int): Total number of content words (nouns, adjectives, verbs, adverbs) considered
+            for repetition detection. Denominator of repetition_density.
+        window_size (int): Maximum distance, in content words, for two occurrences of the same word to be considered
+            a close repetition.
+    """
+
+    repetition_density: float
+    close_repetition_count: int
+    lexical_word_count: int
+    window_size: int
+
+
+@dataclass(slots=True, frozen=True)
 class TextReport:
     """Aggregated report containing all text metrics and analysis metadata.
 
@@ -127,6 +150,7 @@ class TextReport:
         style (StyleMetrics | None): Stylistic and grammatical distribution metrics.
         vocabulary (VocabularyMetrics | None): Lexical richness and vocabulary metrics.
         readability (ReadabilityMetrics | None): Readability and accessibility metrics.
+        repetition (RepetitionMetrics | None): Repetition and redundancy metrics.
     """
 
     language: str
@@ -136,6 +160,7 @@ class TextReport:
     style: StyleMetrics | None = None
     vocabulary: VocabularyMetrics | None = None
     readability: ReadabilityMetrics | None = None
+    repetition: RepetitionMetrics | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """Convert the TextReport dataclass and all nested dataclasses to a dictionary.
@@ -150,6 +175,7 @@ class TextReport:
             >>> data["volume"]["word_count"]
             6
             >>> sorted(data.keys())
-            ['execution_time_seconds', 'language', 'readability', 'rhythm', 'style', 'vocabulary', 'volume']
+            ['execution_time_seconds', 'language', 'readability', 'repetition', 'rhythm', 'style', 'vocabulary',
+            'volume']
         """
         return asdict(self)

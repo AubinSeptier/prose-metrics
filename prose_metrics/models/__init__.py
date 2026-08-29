@@ -2,6 +2,7 @@
 
 from prose_metrics.models.report import (
     ReadabilityMetrics,
+    RepetitionMetrics,
     RhythmMetrics,
     StyleMetrics,
     TextReport,
@@ -11,6 +12,7 @@ from prose_metrics.models.report import (
 
 __all__ = [
     "ReadabilityMetrics",
+    "RepetitionMetrics",
     "RhythmMetrics",
     "StyleMetrics",
     "TextReport",
