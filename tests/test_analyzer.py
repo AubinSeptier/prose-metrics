@@ -33,6 +33,7 @@ def test_analyze_english_test() -> None:
     assert report.vocabulary is not None
     assert report.readability is not None
     assert report.repetition is not None
+    assert report.dialogue is not None
 
     data = report.to_dict()
     assert isinstance(data, dict)
@@ -51,6 +52,7 @@ def test_selective_metrics_calculation() -> None:
     assert report.style is None
     assert report.readability is None
     assert report.repetition is None
+    assert report.dialogue is None
 
     data = report.to_dict()
     assert "volume" in data
@@ -106,6 +108,7 @@ def test_analyze_french_test() -> None:
     assert report.vocabulary is not None
     assert report.readability is not None
     assert report.repetition is not None
+    assert report.dialogue is not None
 
     data = report.to_dict()
     assert isinstance(data, dict)
@@ -140,6 +143,7 @@ def test_analyze_english_test_with_parsed_doc(nlp: Language) -> None:
     assert report.vocabulary is not None
     assert report.readability is not None
     assert report.repetition is not None
+    assert report.dialogue is not None
 
     data = report.to_dict()
     assert isinstance(data, dict)

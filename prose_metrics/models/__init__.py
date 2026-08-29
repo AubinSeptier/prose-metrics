@@ -1,6 +1,7 @@
 """Data models for prose metrics reports."""
 
 from prose_metrics.models.report import (
+    DialogueMetrics,
     ReadabilityMetrics,
     RepetitionMetrics,
     RhythmMetrics,
@@ -11,6 +12,7 @@ from prose_metrics.models.report import (
 )
 
 __all__ = [
+    "DialogueMetrics",
     "ReadabilityMetrics",
     "RepetitionMetrics",
     "RhythmMetrics",

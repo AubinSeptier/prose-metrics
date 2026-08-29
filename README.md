@@ -75,7 +75,7 @@ By default all metrics are computed. You can restrict the analysis to a subset:
 report = analyze(text, language="en", metrics=["volume", "readability"])
 ```
 
-Available metric names: `"volume"`, `"rhythm"`, `"style"`, `"vocabulary"`, `"readability"`. Use `"all"` (default) or an empty sequence to compute everything. Metrics not requested are `None` in the resulting `TextReport`.
+Available metric names: `"volume"`, `"rhythm"`, `"style"`, `"vocabulary"`, `"readability"`, `"dialogue"`. Use `"all"` (default) or an empty sequence to compute everything. Metrics not requested are `None` in the resulting `TextReport`.
 
 ### Tunable parameters
 
@@ -98,6 +98,7 @@ Available metric names: `"volume"`, `"rhythm"`, `"style"`, `"vocabulary"`, `"rea
 - `style` — `StyleMetrics`
 - `vocabulary` — `VocabularyMetrics`
 - `readability` — `ReadabilityMetrics`
+- `dialogue` — `DialogueMetrics`
 
 Call `report.to_dict()` to obtain a fully nested dictionary representation.
 
@@ -144,6 +145,13 @@ Lexical richness indicators:
 - `estimated_reading_time_minutes`
 
 Note: readability scores are computed via `textstat`; the Gunning Fog index is reported as `0.0` for non-English texts because it is only supported for English by `textstat`. Readability is supported for `en`, `es`, `fr`, `it`, `de`, `nl`.
+
+### Dialogue (`DialogueMetrics`)
+
+- `dialogue_verb_count` — number of parenthetical reporting verbs detected next to dialogue spans with curated neutral and expressive speech-verb lexicons.
+- `neutral_dialogue_verb_count` — count of neutral reporting verbs (e.g., "said", "asked", "replied")
+- `expressive_dialogue_verb_count` — count of expressive reporting verbs (e.g., "whispered", "shouted", "murmured")
+- `neutral_dialogue_verb_ratio` — ratio of neutral reporting verbs to total dialogue verbs
 
 ## Architecture notes
 
