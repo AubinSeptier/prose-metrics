@@ -75,7 +75,7 @@ By default all metrics are computed. You can restrict the analysis to a subset:
 report = analyze(text, language="en", metrics=["volume", "readability"])
 ```
 
-Available metric names: `"volume"`, `"rhythm"`, `"style"`, `"vocabulary"`, `"readability"`, `"dialogue"`. Use `"all"` (default) or an empty sequence to compute everything. Metrics not requested are `None` in the resulting `TextReport`.
+Available metric names: `"volume"`, `"rhythm"`, `"style"`, `"vocabulary"`, `"readability"`, `"repetition"`, `"dialogue"`. Use `"all"` (default) or an empty sequence to compute everything. Metrics not requested are `None` in the resulting `TextReport`.
 
 ### Tunable parameters
 
@@ -84,8 +84,13 @@ Available metric names: `"volume"`, `"rhythm"`, `"style"`, `"vocabulary"`, `"rea
 | `language` | `"en"` | ISO 639-1 language code; supported pipeline defaults: `en`, `fr`. |
 | `model_name` | `None` | Explicit spaCy model name, overriding the language default. |
 | `doc` | `None` | Optional pre-parsed spaCy `Doc` to bypass re-tokenization. |
+| `metrics` | `["all"]` | List of metric names to compute; `"all"` computes everything. |
 | `mattr_window_size` | `100` | Sliding-window size for the Moving Average Type-Token Ratio. |
 | `words_per_minute` | `200` | Reading speed used for the estimated reading time. |
+| `short_threshold` | `10` | Maximum number of words in a sentence to be considered "short". |
+| `long_threshold` | `30` | Minimum number of words in a sentence to be considered "long". |
+| `use_lemmas` | `True` | Whether to use lemmatized forms for repetition detection. |
+| `repetition_window_size` | `10` | Maximum distance (in content words) for two occurrences of the same word to be considered a close repetition. |
 
 ## The report structure
 
@@ -98,6 +103,7 @@ Available metric names: `"volume"`, `"rhythm"`, `"style"`, `"vocabulary"`, `"rea
 - `style` — `StyleMetrics`
 - `vocabulary` — `VocabularyMetrics`
 - `readability` — `ReadabilityMetrics`
+- `repetition` — `RepetitionMetrics`
 - `dialogue` — `DialogueMetrics`
 
 Call `report.to_dict()` to obtain a fully nested dictionary representation.
@@ -146,7 +152,18 @@ Lexical richness indicators:
 
 Note: readability scores are computed via `textstat`; the Gunning Fog index is reported as `0.0` for non-English texts because it is only supported for English by `textstat`. Readability is supported for `en`, `es`, `fr`, `it`, `de`, `nl`.
 
+### Repetition (`RepetitionMetrics`)
+
+Metrics for analyzing close lexical repetition in the text:
+
+- `repetition_density`
+- `close_repetition_count`
+- `lexical_word_count` — number of content words (nouns, adjectives, verbs, adverbs) considered for repetition detection
+- `window_size` — maximum distance, in content words, for two occurrences of the same word to be considered a close repetition.
+
 ### Dialogue (`DialogueMetrics`)
+
+Metrics for analyzing dialogue tag (parenthetical verb) in the text:
 
 - `dialogue_verb_count` — number of parenthetical reporting verbs detected next to dialogue spans with curated neutral and expressive speech-verb lexicons.
 - `neutral_dialogue_verb_count` — count of neutral reporting verbs (e.g., "said", "asked", "replied")
