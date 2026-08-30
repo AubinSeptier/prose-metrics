@@ -67,6 +67,22 @@ analyzer = TextAnalyzer(language="fr")
 report = analyzer.analyze("« Bonjour », dit-il. Il parlait doucement.")
 ```
 
+### Batch analysis
+
+For collections of texts (chapters, scenes, …), `pipe()` streams reports lazily while spaCy batches the parsing step across texts — typically much faster than calling `analyze()` in a loop:
+
+```python
+from prose_metrics import pipe
+
+reports = pipe(chapters, language="en", batch_size=32, n_process=2)
+for report in reports:
+    print(report.volume.word_count)
+```
+
+`TextAnalyzer.pipe()` exposes the same API on an analyzer instance. Reports are yielded in input order, and the input may be any iterable (including a generator) — it is consumed lazily, so memory stays flat even for large corpora. Argument validation (`metrics`, `batch_size`, `n_process`) happens eagerly when `pipe()` is called; parsing starts only when the returned iterator is consumed.
+
+Note: because parsing is batched, `execution_time_seconds` on pipe-generated reports is a *running amortized* time (cumulative elapsed time divided by the number of reports yielded so far), not an isolated per-text measurement. Use `analyze()` if you need exact per-text timings.
+
 ### Selecting specific metrics
 
 By default all metrics are computed. You can restrict the analysis to a subset:
@@ -91,7 +107,9 @@ Available metric names: `"volume"`, `"rhythm"`, `"style"`, `"vocabulary"`, `"rea
 | `short_threshold` | `10` | Maximum number of words in a sentence to be considered "short". |
 | `long_threshold` | `30` | Minimum number of words in a sentence to be considered "long". |
 | `use_lemmas` | `True` | Whether to use lemmatized forms for repetition detection. |
-| `repetition_window_size` | `10` | Maximum distance (in content words) for two occurrences of the same word to be considered a close repetition. |
+| `repetition_window_size` | `50` | Maximum distance (in content words) for two occurrences of the same word to be considered a close repetition. |
+| `batch_size` | `64` | (`pipe()` only) Number of texts buffered per spaCy pipe batch. |
+| `n_process` | `1` | (`pipe()` only) Number of processes spaCy uses for parsing. |
 
 ## The report structure
 
@@ -180,7 +198,7 @@ Metrics for analyzing dialogue tag (parenthetical verb) in the text:
 
 ## Architecture notes
 
-- `prose_metrics.analyzer` — orchestrates parsing and metric computation (`TextAnalyzer`, `analyze`).
+- `prose_metrics.analyzer` — orchestrates parsing and metric computation (`TextAnalyzer`, `analyze`, `pipe`).
 - `prose_metrics.metrics` — independent computation functions for volume, rhythm, style, vocabulary, and readability.
 - `prose_metrics.models.report` — frozen, slotted dataclasses for all report models.
 - `prose_metrics.nlp.pipeline` — a thread-safe singleton `SpacyPipelineManager` that caches spaCy pipelines and disables unnecessary components (by default, `ner`) for performance.

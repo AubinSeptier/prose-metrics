@@ -2,7 +2,7 @@
 
 from importlib.metadata import PackageNotFoundError, version
 
-from prose_metrics.analyzer import TextAnalyzer, analyze
+from prose_metrics.analyzer import TextAnalyzer, analyze, pipe
 from prose_metrics.models.report import (
     DialogueMetrics,
     ReadabilityMetrics,
@@ -24,6 +24,7 @@ except PackageNotFoundError:
 __all__ = [
     "TextAnalyzer",
     "analyze",
+    "pipe",
     "DialogueMetrics",
     "ReadabilityMetrics",
     "RepetitionMetrics",

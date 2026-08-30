@@ -1,7 +1,7 @@
 """Central orchestrator for prose and text analysis."""
 
 import time
-from collections.abc import Sequence
+from collections.abc import Iterable, Iterator, Sequence
 from dataclasses import replace
 from typing import Final, Literal
 
@@ -141,6 +141,90 @@ class TextAnalyzer:
 
         execution_time = round(time.perf_counter() - start_time, 4)
         return replace(report, execution_time_seconds=execution_time)
+
+    def pipe(
+        self,
+        texts: Iterable[str],
+        metrics: Sequence[MetricName] | Literal["all"] = "all",
+        batch_size: int = 64,
+        n_process: int = 1,
+        mattr_window_size: int = 100,
+        msttr_segment_size: int = 100,
+        words_per_minute: int = 200,
+        short_threshold: int = 10,
+        long_threshold: int = 30,
+        use_lemmas: bool = True,
+        repetition_window_size: int = 50,
+    ) -> Iterator[TextReport]:
+        """Analyze multiple texts lazily using spaCy's batched pipe processing.
+
+        Texts are parsed through `nlp.pipe()`, which batches the neural pipeline components and optionally distributes
+        parsing across multiple processes. Reports are yielded one at a time, in input order, as parsing progresses.
+        Texts and docs are paired via spaCy 'as_tuples=True'.
+
+        Since parsing is batched, per-report parsing time cannot be isolated: `execution_time_seconds` is stamped with
+        the running amortized time (cumulative elapsed time divided by the number of reports yielded so far).
+        `execution_time_seconds`'s value covers parsing + metric computation, excluding argument validation.
+
+        Args:
+            texts (Iterable[str]): The raw text strings to analyze. May be a generator; it is consumed lazily.
+            metrics (Sequence[MetricName] | Literal["all"]): Metrics to calculate. Either 'all' or a sequence of metric
+                names ("dialogue", "readability", "repetition", "rhythm", "style", "vocabulary", "volume"). If an empty
+                list is provided, all metrics will be computed.
+            batch_size (int): Number of texts buffered per spaCy pipe batch. Defaults to 64.
+            n_process (int): Number of processes for spaCy to use during parsing. Defaults to 1.
+            mattr_window_size (int): Window size for MATTR calculation. Defaults to 100.
+            msttr_segment_size (int): Segment size for MSTTR calculation. Defaults to 100.
+            words_per_minute (int): Reading speed for reading time estimation. Defaults to 200.
+            short_threshold (int): Upper word count bound for short sentences (< threshold). Defaults to 10 words.
+            long_threshold (int): Lower word count bound for long sentences (> threshold). Defaults to 30 words.
+            use_lemmas (bool): If True, uses normalized lemmas. If False, uses raw lower tokens. Defaults to True.
+            repetition_window_size (int): Maximum distance, in content words, for two occurrences of the same word to be
+                considered a close repetition. Defaults to 50.
+
+        Returns:
+            Iterator[TextReport]: A lazy iterator of reports, in the same order as the input texts.
+
+        Raises:
+            ValueError: if the metrics argument is invalid, or if batch_size or n_process is less than 1.
+
+        Examples:
+            >>> analyzer = TextAnalyzer(language="en")
+            >>> reports = list(analyzer.pipe(["The cat sat.", "A dog runs fast."]))
+            >>> [r.volume.word_count for r in reports]
+            [4, 4]
+        """
+        if batch_size < 1:
+            msg = f"batch_size must be at least 1, got {batch_size}"
+            raise ValueError(msg)
+        if n_process < 1:
+            msg = f"n_process must be at least 1, got {n_process}"
+            raise ValueError(msg)
+
+        selected_metrics = _resolve_metrics(metrics=metrics)
+
+        def _generate() -> Iterator[TextReport]:
+            start_time = time.perf_counter()
+            nlp = self._pipeline_manager.get_pipeline(language=self.language, model_name=self.model_name)
+            text_pairs = ((text, text) for text in texts)
+            docs = nlp.pipe(text_pairs, batch_size=batch_size, n_process=n_process, as_tuples=True)
+            for count, (parsed_doc, text) in enumerate(docs, start=1):
+                amortized_time = round((time.perf_counter() - start_time) / count, 4)
+                yield self._compute_report(
+                    text=text,
+                    parsed_doc=parsed_doc,
+                    selected_metrics=selected_metrics,
+                    execution_time_seconds=amortized_time,
+                    mattr_window_size=mattr_window_size,
+                    msttr_segment_size=msttr_segment_size,
+                    words_per_minute=words_per_minute,
+                    short_threshold=short_threshold,
+                    long_threshold=long_threshold,
+                    use_lemmas=use_lemmas,
+                    repetition_window_size=repetition_window_size,
+                )
+
+        return _generate()
 
     def _compute_report(
         self,
@@ -318,6 +402,70 @@ def analyze(
         text=text,
         doc=doc,
         metrics=metrics,
+        mattr_window_size=mattr_window_size,
+        msttr_segment_size=msttr_segment_size,
+        words_per_minute=words_per_minute,
+        short_threshold=short_threshold,
+        long_threshold=long_threshold,
+        use_lemmas=use_lemmas,
+        repetition_window_size=repetition_window_size,
+    )
+
+
+def pipe(
+    texts: Iterable[str],
+    language: str = "en",
+    model_name: str | None = None,
+    metrics: Sequence[MetricName] | Literal["all"] = "all",
+    batch_size: int = 64,
+    n_process: int = 1,
+    mattr_window_size: int = 100,
+    msttr_segment_size: int = 100,
+    words_per_minute: int = 200,
+    short_threshold: int = 10,
+    long_threshold: int = 30,
+    use_lemmas: bool = True,
+    repetition_window_size: int = 50,
+) -> Iterator[TextReport]:
+    """Convenience function to analyze multiple texts without explicitly creating a TextAnalyzer instance.
+
+    Texts are parsed through spaCy's batched pipe processing and reports are yielded lazily, in input order.
+    See TextAnalyzer.pipe() for details on the amortized execution time stamping.
+
+    Args:
+        texts (Iterable[str]): The raw text strings to analyze. May be a generator; it is consumed lazily.
+        language (str): Target language code (ISO 639-1, e.g., "en" for English). Default is "en".
+        model_name (str | None): Optional explicit spaCy model name.
+        metrics (Sequence[MetricName] | Literal["all"]): Metrics to calculate. Either 'all' or a sequence of metric
+            names ("dialogue", "readability", "repetition", "rhythm", "style", "vocabulary", "volume").
+        batch_size (int): Number of texts buffered per spaCy pipe batch. Defaults to 64.
+        n_process (int): Number of processes for spaCy to use during parsing. Defaults to 1.
+        mattr_window_size (int): Window size for MATTR calculation. Defaults to 100.
+        msttr_segment_size (int): Segment size for MSTTR calculation. Defaults to 100.
+        words_per_minute (int): Reading speed for reading time estimation. Defaults to 200.
+        short_threshold (int): Upper word count bound for short sentences (< threshold). Defaults to 10 words.
+        long_threshold (int): Lower word count bound for long sentences (> threshold). Defaults to 30 words.
+        use_lemmas (bool): If True, uses normalized lemmas. If False, uses raw lower tokens. Defaults to True.
+        repetition_window_size (int): Maximum distance, in content words, for two occurrences of the same word to be
+            considered a close repetition. Defaults to 50.
+
+    Returns:
+        Iterator[TextReport]: A lazy iterator of reports, in the same order as the input texts.
+
+    Raises:
+        ValueError: if the metrics argument is invalid, or if batch_size or n_process is less than 1.
+
+    Examples:
+        >>> reports = list(pipe(["The cat sat.", "A dog runs fast."], language="en"))
+        >>> [r.volume.word_count for r in reports]
+        [4, 4]
+    """
+    analyzer = TextAnalyzer(language=language, model_name=model_name)
+    return analyzer.pipe(
+        texts=texts,
+        metrics=metrics,
+        batch_size=batch_size,
+        n_process=n_process,
         mattr_window_size=mattr_window_size,
         msttr_segment_size=msttr_segment_size,
         words_per_minute=words_per_minute,

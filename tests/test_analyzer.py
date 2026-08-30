@@ -1,11 +1,22 @@
 """Integration and performance tests for TextAnalyzer."""
 
+from typing import Iterator
+
 import pytest
 from spacy.language import Language
 
-from prose_metrics import TextAnalyzer, analyze
+from prose_metrics import TextAnalyzer, analyze, pipe
 from prose_metrics.models import TextReport
 from prose_metrics.nlp.pipeline import SpacyPipelineManager
+
+
+def _get_word_counts(reports: list[TextReport]) -> list[int]:
+    """Extract word counts from reports, asserting volume metrics are present."""
+    word_counts: list[int] = []
+    for report in reports:
+        assert report.volume is not None
+        word_counts.append(report.volume.word_count)
+    return word_counts
 
 
 @pytest.fixture(scope="module")
@@ -206,3 +217,118 @@ def test_analyze_english_test_with_custom_metrics(nlp: Language) -> None:
     assert report.rhythm.long_sentence_ratio == 0.0
     assert report.vocabulary.unique_word_count > 0
     assert report.repetition.lexical_word_count > 0
+
+
+def test_pipe_matches_analyze_results() -> None:
+    """Check pipe() produces the same metrics as analyze() for each text."""
+    texts = [
+        "The fog rolled in over the harbor at dawn.",
+        "“We should go now,” she said quietly, glancing at the door.",
+        "He ran and ran until his lungs burned with cold air.",
+    ]
+    analyzer = TextAnalyzer(language="en")
+    reports = list(analyzer.pipe(texts))
+
+    assert len(reports) == len(texts)
+    for text, report in zip(texts, reports, strict=True):
+        expected = analyzer.analyze(text)
+        assert report.language == expected.language
+        assert report.volume == expected.volume
+        assert report.rhythm == expected.rhythm
+        assert report.style == expected.style
+        assert report.vocabulary == expected.vocabulary
+        assert report.readability == expected.readability
+        assert report.repetition == expected.repetition
+        assert report.dialogue == expected.dialogue
+
+
+def test_pipe_preserves_input_order() -> None:
+    """Check reports are yielded in the same order as the input texts."""
+    texts = ["The cat sleeps.", "A very big brown dog.", "Short."]
+    analyzer = TextAnalyzer(language="en")
+    word_counts = _get_word_counts(list(analyzer.pipe(texts)))
+    assert word_counts == [3, 5, 1]
+
+
+def test_pipe_does_not_consume_iterable_before_first_next() -> None:
+    """Check parsing is lazy and generator input is correctly paired."""
+    consumed: list[str] = []
+
+    def tracking_texts() -> Iterator[str]:
+        for text in ["The cat sleeps.", "A very big brown dog."]:
+            consumed.append(text)
+            yield text
+
+    analyzer = TextAnalyzer(language="en")
+    reports = analyzer.pipe(tracking_texts())
+    assert consumed == []
+
+    assert _get_word_counts(list(reports)) == [3, 5]
+    assert len(consumed) == 2
+
+
+def test_pipe_with_empty_iterable_returns_no_reports() -> None:
+    """Check piping an empty iterable yields no reports."""
+    assert list(TextAnalyzer(language="en").pipe([])) == []
+
+
+def test_pipe_invalid_metrics_raise_before_consumption() -> None:
+    """Check metric validation is eager and leaves the input iterable untouched."""
+    consumed: list[str] = []
+
+    def tracking_texts() -> Iterator[str]:
+        consumed.append("consumed")
+        yield "Some text."
+
+    analyzer = TextAnalyzer(language="en")
+    with pytest.raises(ValueError, match=r"Invalid metric\(s\): \['unknown'\]"):
+        analyzer.pipe(tracking_texts(), metrics=["unknown"])  # type: ignore
+
+    assert consumed == []
+
+
+def test_pipe_invalid_pipe_parameters_raise_value_error() -> None:
+    """Check batch_size and n_process below 1 raise ValueError."""
+    analyzer = TextAnalyzer(language="en")
+
+    with pytest.raises(ValueError, match="batch_size must be at least 1"):
+        analyzer.pipe(["Some text."], batch_size=0)
+
+    with pytest.raises(ValueError, match="n_process must be at least 1"):
+        analyzer.pipe(["Some text."], n_process=0)
+
+
+def test_pipe_with_selective_metrics() -> None:
+    """Check pipe() respects a subset of metrics."""
+    analyzer = TextAnalyzer(language="en")
+    reports = list(analyzer.pipe(["A simple test sentence."], metrics=["volume"]))
+
+    assert reports[0].volume is not None
+    assert reports[0].rhythm is None
+    assert reports[0].style is None
+
+
+@pytest.mark.filterwarnings(r"ignore:This process \(pid=\d+\) is multi-threaded:DeprecationWarning")
+def test_pipe_with_multiprocessing() -> None:
+    """Check pipe() with n_process=2 yields correct reports in order."""
+    texts = ["The cat sleeps quietly.", "A dog runs very fast."]
+    analyzer = TextAnalyzer(language="en")
+    reports = list(analyzer.pipe(texts, batch_size=1, n_process=2))
+
+    assert _get_word_counts(reports) == [4, 5]
+
+
+def test_module_level_pipe_function() -> None:
+    """Check the module-level pipe() convenience function."""
+    texts = ["The cat sleeps quietly.", "A dog runs very fast."]
+    reports = list(pipe(texts, language="en"))
+
+    assert len(reports) == 2
+    assert all(isinstance(report, TextReport) for report in reports)
+    assert _get_word_counts(reports) == [4, 5]
+
+
+def test_module_level_pipe_invalid_metrics_raise_value_error() -> None:
+    """Check the module-level pipe() validates metrics eagerly."""
+    with pytest.raises(ValueError, match=r"Invalid metric\(s\): \['unknown'\]"):
+        pipe(["Some text."], language="en", metrics=["unknown"])  # type: ignore
