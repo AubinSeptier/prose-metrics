@@ -136,6 +136,10 @@ Grammatical composition based on spaCy universal POS tags:
   (noun counts include proper nouns; verb counts include auxiliaries)
 - `adverbs_manner_count` — manner adverbs detected via syntactic dependency checks and suffix rules (`-ly` in English, `-ment` in French), with curated irregular and exclusion lists
 - `pos_distribution` — raw counts per universal POS tag
+- `starter_category_distribution` — counts of sentence starting categories (pronoun, noun phrase, etc.)
+- `starter_entropy` — entropy of sentence starting categories (0.0 to 1.0, higher means more variety)
+- `pronoun_starter_ratio` — proportion of sentences starting with pronouns over total sentences
+- `max_consecutive_starter_run` — maximum number of consecutive sentences starting with the same category
 
 ### Vocabulary (`VocabularyMetrics`)
 
