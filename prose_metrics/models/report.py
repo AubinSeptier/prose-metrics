@@ -33,7 +33,7 @@ class VolumeMetrics:
 class RhythmMetrics:
     """Rhythm and sentence structure dispersion metrics.
 
-    Dict field is excluded from hashing to keep reports hashable.
+    Dict fields are excluded from hashing to keep reports hashable.
 
     Attributes:
         avg_sentence_length (float): Mean sentence length in words.
@@ -42,6 +42,12 @@ class RhythmMetrics:
         short_sentence_ratio (float): Proportion of short sentences (e.g. < 10 words).
         long_sentence_ratio (float): Proportion of long sentences (e.g. > 30 words).
         punctuation_distribution (dict[str, int]): Distribution of specific punctuation marks.
+        starter_category_distribution (dict[str, int]): Distribution of sentence starting categories (e.g., pronoun,
+            noun_phrase, adverb, etc.).
+        starter_entropy (float): Entropy of sentence starting categories (0.0 to 1.0, higher means more variety).
+        pronoun_starter_ratio (float): Proportion of sentences starting with pronouns over total sentences.
+        max_consecutive_starter_run (int): Maximum number of consecutive sentences starting with the same
+            category (e.g., 3 sentences in a row starting with pronouns).
     """
 
     avg_sentence_length: float
@@ -50,6 +56,10 @@ class RhythmMetrics:
     short_sentence_ratio: float
     long_sentence_ratio: float
     punctuation_distribution: dict[str, int] = field(hash=False)
+    starter_category_distribution: dict[str, int] = field(hash=False)
+    starter_entropy: float
+    pronoun_starter_ratio: float
+    max_consecutive_starter_run: int
 
 
 @dataclass(slots=True, frozen=True)
