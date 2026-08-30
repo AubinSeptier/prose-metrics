@@ -1,6 +1,6 @@
 [project]
 name = "prose-metrics"
-version = "0.2.0"
+version = "0.3.0"
 description = "Fast, deterministic, and modular prose & fiction analysis library in Python."
 readme = "README.md"
 license-files = ["LICENSE*"]

@@ -19,7 +19,7 @@ from prose_metrics.nlp.pipeline import SpacyPipelineManager
 try:
     __version__ = version("prose-metrics")
 except PackageNotFoundError:
-    __version__ = "0.2.0"  # Package is not installed
+    __version__ = "0.3.0"  # Package is not installed
 
 __all__ = [
     "TextAnalyzer",
