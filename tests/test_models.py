@@ -56,6 +56,10 @@ def sample_report() -> TextReport:
             mattr_window_size=50,
             hapax_count=80,
             hapax_ratio=0.667,
+            yule_k=0.45,
+            maas_a2=0.003,
+            msttr=0.58,
+            msttr_segment_size=50,
         ),
         readability=ReadabilityMetrics(
             flesch_reading_ease=75.5,

@@ -67,6 +67,7 @@ class TextAnalyzer:
         doc: Doc | None = None,
         metrics: Sequence[MetricName] | Literal["all"] = "all",
         mattr_window_size: int = 100,
+        msttr_segment_size: int = 100,
         words_per_minute: int = 200,
         short_threshold: int = 10,
         long_threshold: int = 30,
@@ -83,6 +84,7 @@ class TextAnalyzer:
                 names ("dialogue", "readability", "repetition", "rhythm", "style", "vocabulary", "volume"). If an empty
                 list is provided, all metrics will be computed.
             mattr_window_size (int): Window size for MATTR calculation. Defaults to 100.
+            msttr_segment_size (int): Segment size for MSTTR calculation. Defaults to 100.
             words_per_minute (int): Reading speed for reading time estimation. Defaults to 200.
             short_threshold (int): Upper word count bound for short sentences (< threshold). Defaults to 10 words.
             long_threshold (int): Lower word count bound for long sentences (> threshold). Defaults to 30 words.
@@ -95,7 +97,7 @@ class TextAnalyzer:
 
         Raises:
             ValueError: If the metrics argument is invalid, i.e., not a valid metric name or sequence of metric names.
-                Or if mattr_window_size, repetition_window_size, or words_per_minute is less than 1.
+                Or if mattr_window_size, msttr_segment_size, repetition_window_size, or words_per_minute is less than 1.
 
         Examples:
             >>> analyzer = TextAnalyzer(language="en")
@@ -158,6 +160,7 @@ class TextAnalyzer:
             vocabulary_metrics = compute_vocabulary_metrics(
                 doc=parsed_doc,
                 mattr_window_size=mattr_window_size,
+                msttr_segment_size=msttr_segment_size,
                 use_lemmas=use_lemmas,
             )
 
@@ -201,6 +204,7 @@ def analyze(
     doc: Doc | None = None,
     metrics: Sequence[MetricName] | Literal["all"] = "all",
     mattr_window_size: int = 100,
+    msttr_segment_size: int = 100,
     words_per_minute: int = 200,
     short_threshold: int = 10,
     long_threshold: int = 30,
@@ -218,6 +222,7 @@ def analyze(
         metrics (Sequence[MetricName] | Literal["all"]): Metrics to calculate. Either 'all' or a sequence of metric
             names ("dialogue", "readability", "repetition", "rhythm", "style", "vocabulary", "volume").
         mattr_window_size (int): Window size for MATTR calculation. Defaults to 100.
+        msttr_segment_size (int): Segment size for MSTTR calculation. Defaults to 100.
         words_per_minute (int): Reading speed for reading time estimation. Defaults to 200.
         short_threshold (int): Upper word count bound for short sentences (< threshold). Defaults to 10 words.
         long_threshold (int): Lower word count bound for long sentences (> threshold). Defaults to 30 words.
@@ -230,7 +235,7 @@ def analyze(
 
     Raises:
         ValueError: If the metrics argument is invalid, i.e., not a valid metric name or sequence of metric names.
-            Or if mattr_window_size, repetition_window_size, or words_per_minute is less than 1.
+            Or if mattr_window_size, msttr_segment_size, repetition_window_size, or words_per_minute is less than 1.
 
     Examples:
         >>> report = analyze("The cat sat on the mat.")
@@ -245,6 +250,7 @@ def analyze(
         doc=doc,
         metrics=metrics,
         mattr_window_size=mattr_window_size,
+        msttr_segment_size=msttr_segment_size,
         words_per_minute=words_per_minute,
         short_threshold=short_threshold,
         long_threshold=long_threshold,
