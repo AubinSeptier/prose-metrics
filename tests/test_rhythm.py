@@ -13,6 +13,12 @@ def nlp() -> Language:
     return SpacyPipelineManager().get_pipeline(language="en")
 
 
+@pytest.fixture(scope="module")
+def nlp_fr() -> Language:
+    """Provide a cached spaCy pipeline for French tests."""
+    return SpacyPipelineManager().get_pipeline(language="fr")
+
+
 def test_empty_text_rhythm(nlp: Language) -> None:
     """Check metrics on empty and whitespace-only text."""
     text = "   \n\n  "
@@ -25,6 +31,10 @@ def test_empty_text_rhythm(nlp: Language) -> None:
     assert metrics.short_sentence_ratio == 0.0
     assert metrics.long_sentence_ratio == 0.0
     assert all(count == 0 for count in metrics.punctuation_distribution.values())
+    assert all(count == 0 for count in metrics.starter_category_distribution.values())
+    assert metrics.starter_entropy == 0.0
+    assert metrics.pronoun_starter_ratio == 0.0
+    assert metrics.max_consecutive_starter_run == 0
 
 
 def test_single_sentence_variance(nlp: Language) -> None:
@@ -129,3 +139,64 @@ def test_distribution_shape_is_fixed(nlp: Language) -> None:
     assert set(punct.keys()) == set(TRACKED_PUNCTUATION)
     assert punct["."] == 1
     assert punct["!"] == 0
+
+
+def test_pronoun_starter_run(nlp: Language) -> None:
+    """Check monotonous pronoun starts yield zero entropy and a full-length run."""
+    text = "He ran. He jumped. He laughed. He fell."
+    doc = nlp(text)
+    metrics = compute_rhythm_metrics(doc)
+
+    assert metrics.starter_category_distribution["pronoun"] == 4
+    assert metrics.starter_entropy == 0.0
+    assert metrics.pronoun_starter_ratio == 1.0
+    assert metrics.max_consecutive_starter_run == 4
+
+
+def test_varied_starters_high_entropy(nlp: Language) -> None:
+    """Check uniformly varied starters yield maximal normalized entropy."""
+    text = "He ran quickly. The dog barked. Slowly, she turned. In the dark, it waited."
+    doc = nlp(text)
+    metrics = compute_rhythm_metrics(doc)
+
+    assert metrics.starter_entropy == 1.0
+    assert metrics.pronoun_starter_ratio == 0.25
+    assert metrics.max_consecutive_starter_run == 1
+
+
+def test_quoted_sentence_starters(nlp: Language) -> None:
+    """Check dialogue-opening punctuation is skipped when classifying starters."""
+    text = "“Run now,” she whispered. “Wait,” he said."
+    doc = nlp(text)
+    metrics = compute_rhythm_metrics(doc)
+
+    assert metrics.starter_category_distribution["verb"] == 2
+    assert metrics.max_consecutive_starter_run == 2
+
+
+def test_french_starters(nlp_fr: Language) -> None:
+    """Check starter variety metrics on a French text."""
+    text = "« Il faut qu’on parte », murmura-t-il. Le vent soufflait fort. Lentement, elle se leva."
+    doc = nlp_fr(text)
+    metrics = compute_rhythm_metrics(doc)
+
+    assert metrics.starter_entropy == 1.0
+    assert metrics.pronoun_starter_ratio == 0.3333
+
+
+def test_starter_distribution_shape_is_fixed(nlp: Language) -> None:
+    """Check the starter distribution always contains every category key, even at zero."""
+    text = "Only plain words."
+    doc = nlp(text)
+    metrics = compute_rhythm_metrics(doc)
+
+    assert set(metrics.starter_category_distribution.keys()) == {
+        "pronoun",
+        "noun_phrase",
+        "adverb",
+        "preposition",
+        "conjunction",
+        "verb",
+        "adjective",
+        "other",
+    }

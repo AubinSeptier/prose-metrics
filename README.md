@@ -86,6 +86,7 @@ Available metric names: `"volume"`, `"rhythm"`, `"style"`, `"vocabulary"`, `"rea
 | `doc` | `None` | Optional pre-parsed spaCy `Doc` to bypass re-tokenization. |
 | `metrics` | `["all"]` | List of metric names to compute; `"all"` computes everything. |
 | `mattr_window_size` | `100` | Sliding-window size for the Moving Average Type-Token Ratio. |
+| `msttr_segment_size` | `100` | Segment size for the Mean Segmental Type-Token Ratio. |
 | `words_per_minute` | `200` | Reading speed used for the estimated reading time. |
 | `short_threshold` | `10` | Maximum number of words in a sentence to be considered "short". |
 | `long_threshold` | `30` | Minimum number of words in a sentence to be considered "long". |
@@ -135,6 +136,10 @@ Grammatical composition based on spaCy universal POS tags:
   (noun counts include proper nouns; verb counts include auxiliaries)
 - `adverbs_manner_count` — manner adverbs detected via syntactic dependency checks and suffix rules (`-ly` in English, `-ment` in French), with curated irregular and exclusion lists
 - `pos_distribution` — raw counts per universal POS tag
+- `starter_category_distribution` — counts of sentence starting categories (pronoun, noun phrase, etc.)
+- `starter_entropy` — entropy of sentence starting categories (0.0 to 1.0, higher means more variety)
+- `pronoun_starter_ratio` — proportion of sentences starting with pronouns over total sentences
+- `max_consecutive_starter_run` — maximum number of consecutive sentences starting with the same category
 
 ### Vocabulary (`VocabularyMetrics`)
 
@@ -144,6 +149,9 @@ Lexical richness indicators:
 - `ttr` — Type-Token Ratio
 - `mattr` — Moving Average Type-Token Ratio (with `mattr_window_size`)
 - `hapax_count`, `hapax_ratio` — words occurring exactly once
+- `yule_k` — Yule's K measure of lexical diversity (Higher means more repetition)
+- `maas_a2` — Maas's a² measure of lexical diversity (lower is better)
+- `msttr` — Mean Segmental Type-Token Ratio (with `msttr_segment_size`)
 
 ### Readability (`ReadabilityMetrics`)
 

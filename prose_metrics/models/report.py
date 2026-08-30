@@ -33,7 +33,7 @@ class VolumeMetrics:
 class RhythmMetrics:
     """Rhythm and sentence structure dispersion metrics.
 
-    Dict field is excluded from hashing to keep reports hashable.
+    Dict fields are excluded from hashing to keep reports hashable.
 
     Attributes:
         avg_sentence_length (float): Mean sentence length in words.
@@ -42,6 +42,12 @@ class RhythmMetrics:
         short_sentence_ratio (float): Proportion of short sentences (e.g. < 10 words).
         long_sentence_ratio (float): Proportion of long sentences (e.g. > 30 words).
         punctuation_distribution (dict[str, int]): Distribution of specific punctuation marks.
+        starter_category_distribution (dict[str, int]): Distribution of sentence starting categories (e.g., pronoun,
+            noun_phrase, adverb, etc.).
+        starter_entropy (float): Entropy of sentence starting categories (0.0 to 1.0, higher means more variety).
+        pronoun_starter_ratio (float): Proportion of sentences starting with pronouns over total sentences.
+        max_consecutive_starter_run (int): Maximum number of consecutive sentences starting with the same
+            category (e.g., 3 sentences in a row starting with pronouns).
     """
 
     avg_sentence_length: float
@@ -50,6 +56,10 @@ class RhythmMetrics:
     short_sentence_ratio: float
     long_sentence_ratio: float
     punctuation_distribution: dict[str, int] = field(hash=False)
+    starter_category_distribution: dict[str, int] = field(hash=False)
+    starter_entropy: float
+    pronoun_starter_ratio: float
+    max_consecutive_starter_run: int
 
 
 @dataclass(slots=True, frozen=True)
@@ -88,6 +98,10 @@ class VocabularyMetrics:
         mattr_window_size (int): Window size used for MATTR calculation.
         hapax_count (int): Number of words appearing exactly once (hapax legomena).
         hapax_ratio (float): Proportion of hapax legomena relative to unique words.
+        yule_k (float): Yule's K measure of lexical diversity. Higher means more repetition.
+        maas_a2 (float): Maas's a^2 measure of lexical diversity. Lower means richer vocabulary.
+        msttr (float): Mean Segmental Type-Token Ratio (average TTR over segments).
+        msttr_segment_size (int): Segment size used for MSTTR calculation.
     """
 
     unique_word_count: int
@@ -96,6 +110,10 @@ class VocabularyMetrics:
     mattr_window_size: int
     hapax_count: int
     hapax_ratio: float
+    yule_k: float
+    maas_a2: float
+    msttr: float
+    msttr_segment_size: int
 
 
 @dataclass(slots=True, frozen=True)
