@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.3.0](https://github.com/AubinSeptier/prose-metrics/compare/prose_metrics-v0.2.0...prose_metrics-v0.3.0) (2026-08-30)
+
+
+### Features
+
+* **metrics:** add additional metrics to VocabularyMetrics ([#30](https://github.com/AubinSeptier/prose-metrics/issues/30)) ([6ea1487](https://github.com/AubinSeptier/prose-metrics/commit/6ea1487ca5f05a44d35b1646ab07af78e0598f12))
+* **metrics:** add sentence starter variety metrics ([#31](https://github.com/AubinSeptier/prose-metrics/issues/31)) ([bba7f32](https://github.com/AubinSeptier/prose-metrics/commit/bba7f323dcb6361475d22f0bef7d62ecf3711e9c))
+
 ## [0.2.0](https://github.com/AubinSeptier/prose-metrics/compare/prose_metrics-v0.1.0...prose_metrics-v0.2.0) (2026-08-30)
 
 
