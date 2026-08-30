@@ -88,6 +88,10 @@ class VocabularyMetrics:
         mattr_window_size (int): Window size used for MATTR calculation.
         hapax_count (int): Number of words appearing exactly once (hapax legomena).
         hapax_ratio (float): Proportion of hapax legomena relative to unique words.
+        yule_k (float): Yule's K measure of lexical diversity. Higher means more repetition.
+        maas_a2 (float): Maas's a^2 measure of lexical diversity. Lower means richer vocabulary.
+        msttr (float): Mean Segmental Type-Token Ratio (average TTR over segments).
+        msttr_segment_size (int): Segment size used for MSTTR calculation.
     """
 
     unique_word_count: int
@@ -96,6 +100,10 @@ class VocabularyMetrics:
     mattr_window_size: int
     hapax_count: int
     hapax_ratio: float
+    yule_k: float
+    maas_a2: float
+    msttr: float
+    msttr_segment_size: int
 
 
 @dataclass(slots=True, frozen=True)
