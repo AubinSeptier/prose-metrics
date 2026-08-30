@@ -16,6 +16,15 @@ class ModelNotFoundError(NLPError):
         Args:
             model_name (str): The name of the spaCy model that was not found.
             language (str): The language code for which the model is required.
+
+        Examples:
+            >>> err = ModelNotFoundError("en_core_web_sm", "en")
+            >>> err.model_name
+            'en_core_web_sm'
+            >>> print(err)
+            The spaCy model 'en_core_web_sm' for language 'en' is not installed.
+            Install it via your package manager or run:
+                uv run python -m spacy download en_core_web_sm
         """
         message = (
             f"The spaCy model '{model_name}' for language '{language}' is not installed.\n"

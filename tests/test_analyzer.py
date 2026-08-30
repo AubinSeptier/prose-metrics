@@ -32,6 +32,8 @@ def test_analyze_english_test() -> None:
     assert report.style is not None
     assert report.vocabulary is not None
     assert report.readability is not None
+    assert report.repetition is not None
+    assert report.dialogue is not None
 
     data = report.to_dict()
     assert isinstance(data, dict)
@@ -49,6 +51,8 @@ def test_selective_metrics_calculation() -> None:
     assert report.rhythm is None
     assert report.style is None
     assert report.readability is None
+    assert report.repetition is None
+    assert report.dialogue is None
 
     data = report.to_dict()
     assert "volume" in data
@@ -103,6 +107,8 @@ def test_analyze_french_test() -> None:
     assert report.style is not None
     assert report.vocabulary is not None
     assert report.readability is not None
+    assert report.repetition is not None
+    assert report.dialogue is not None
 
     data = report.to_dict()
     assert isinstance(data, dict)
@@ -136,6 +142,8 @@ def test_analyze_english_test_with_parsed_doc(nlp: Language) -> None:
     assert report.style is not None
     assert report.vocabulary is not None
     assert report.readability is not None
+    assert report.repetition is not None
+    assert report.dialogue is not None
 
     data = report.to_dict()
     assert isinstance(data, dict)
@@ -160,12 +168,14 @@ def test_analyze_test_with_empty_metrics_list() -> None:
     assert report.style is not None
     assert report.vocabulary is not None
     assert report.readability is not None
+    assert report.repetition is not None
 
     assert report.volume.word_count > 0
     assert report.rhythm.avg_sentence_length > 0
     assert report.style.noun_ratio >= 0.0
     assert report.vocabulary.unique_word_count > 0
     assert report.readability.flesch_reading_ease > 0.0
+    assert report.repetition.lexical_word_count > 0
 
 
 def test_invalid_metric_string_name_raises_value_error() -> None:
@@ -184,11 +194,15 @@ def test_analyze_english_test_with_custom_metrics(nlp: Language) -> None:
         "Night was falling inexorably over the abandoned kingdom."
     )
     doc = nlp(text)
-    report = analyze(text, doc=doc, language="en", short_threshold=5, long_threshold=50, use_lemmas=False)
+    report = analyze(
+        text, doc=doc, language="en", short_threshold=5, long_threshold=50, use_lemmas=False, repetition_window_size=10
+    )
 
     assert report.rhythm is not None
     assert report.vocabulary is not None
+    assert report.repetition is not None
 
     assert report.rhythm.short_sentence_ratio == 0.25
     assert report.rhythm.long_sentence_ratio == 0.0
     assert report.vocabulary.unique_word_count > 0
+    assert report.repetition.lexical_word_count > 0

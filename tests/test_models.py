@@ -5,7 +5,9 @@ import dataclasses
 import pytest
 
 from prose_metrics.models import (
+    DialogueMetrics,
     ReadabilityMetrics,
+    RepetitionMetrics,
     RhythmMetrics,
     StyleMetrics,
     TextReport,
@@ -61,6 +63,18 @@ def sample_report() -> TextReport:
             gunning_fog=8.4,
             estimated_reading_time_minutes=1.0,
         ),
+        repetition=RepetitionMetrics(
+            repetition_density=0.15,
+            close_repetition_count=5,
+            lexical_word_count=15,
+            window_size=50,
+        ),
+        dialogue=DialogueMetrics(
+            dialogue_verb_count=20,
+            neutral_dialogue_verb_count=15,
+            expressive_dialogue_verb_count=5,
+            neutral_dialogue_verb_ratio=0.75,
+        ),
     )
 
 
@@ -77,7 +91,9 @@ def test_text_report_to_dict(sample_report: TextReport) -> None:
     assert data["language"] == "en"
     assert data["volume"]["word_count"] == 200
     assert data["vocabulary"]["mattr"] == 0.62
+    assert data["repetition"]["repetition_density"] == 0.15
     assert "punctuation_distribution" in data["rhythm"]
+    assert "neutral_dialogue_verb_ratio" in data["dialogue"]
 
 
 def test_text_report_hashable(sample_report: TextReport) -> None:

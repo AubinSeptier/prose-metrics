@@ -116,6 +116,53 @@ class ReadabilityMetrics:
 
 
 @dataclass(slots=True, frozen=True)
+class RepetitionMetrics:
+    """Close lexical repetition metrics.
+
+    Repetitions are detected over content words only (nouns, adjectives, verbs, and adverbs) using lemmas by default.
+    Distances are measured in content-word positions, not raw tokens.
+
+    Attributes:
+        repetition_density (float): Proportion of close repetitions over lexical words (0.0 to 1.0).
+        close_repetition_count (int): Number of content-word occurrences repeating a word already seen within
+            the window. Only the second and subsequent occurrences are counted.
+        lexical_word_count (int): Total number of content words (nouns, adjectives, verbs, adverbs) considered
+            for repetition detection. Denominator of repetition_density.
+        window_size (int): Maximum distance, in content words, for two occurrences of the same word to be considered
+            a close repetition.
+    """
+
+    repetition_density: float
+    close_repetition_count: int
+    lexical_word_count: int
+    window_size: int
+
+
+@dataclass(slots=True, frozen=True)
+class DialogueMetrics:
+    """Dialogue tag (parenthetical verb) metrics.
+
+    Reporting verbs governing dialogue lines are detected via curated speech-verb lexicons combined
+    with a proximity search around dialogue spans. Dash-style dialogues are not analyzed for tags,
+    their spans capture the full line, incise included.
+
+    Attributes:
+        dialogue_verb_count (int): Total number of unique reporting verbs detected next to dialogue spans.
+            Equal to neutral + expressive counts.
+        neutral_dialogue_verb_count (int): Reporting verbs from the neutral lexicon (e.g., say, ask).
+        expressive_dialogue_verb_count (int): Reporting verbs from the expressive (marked) lexicon (e.g., whisper,
+            retort).
+        neutral_dialogue_verb_ratio (float): Proportion of neutral reporting verbs over total reporting verbs
+            (0.0 to 1.0).
+    """
+
+    dialogue_verb_count: int
+    neutral_dialogue_verb_count: int
+    expressive_dialogue_verb_count: int
+    neutral_dialogue_verb_ratio: float
+
+
+@dataclass(slots=True, frozen=True)
 class TextReport:
     """Aggregated report containing all text metrics and analysis metadata.
 
@@ -127,6 +174,8 @@ class TextReport:
         style (StyleMetrics | None): Stylistic and grammatical distribution metrics.
         vocabulary (VocabularyMetrics | None): Lexical richness and vocabulary metrics.
         readability (ReadabilityMetrics | None): Readability and accessibility metrics.
+        repetition (RepetitionMetrics | None): Repetition and redundancy metrics.
+        dialogue (DialogueMetrics | None): Dialogue-specific metrics.
     """
 
     language: str
@@ -136,11 +185,23 @@ class TextReport:
     style: StyleMetrics | None = None
     vocabulary: VocabularyMetrics | None = None
     readability: ReadabilityMetrics | None = None
+    repetition: RepetitionMetrics | None = None
+    dialogue: DialogueMetrics | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """Convert the TextReport dataclass and all nested dataclasses to a dictionary.
 
         Returns:
             dict: A dictionary representation of the TextReport.
+
+        Examples:
+            >>> from prose_metrics import analyze
+            >>> report = analyze("The cat sat on the mat.")
+            >>> data = report.to_dict()
+            >>> data["volume"]["word_count"]
+            6
+            >>> sorted(data.keys())
+            ['dialogue', 'execution_time_seconds', 'language', 'readability', 'repetition', 'rhythm', 'style',
+            'vocabulary', 'volume']
         """
         return asdict(self)

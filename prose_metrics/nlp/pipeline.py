@@ -14,6 +14,12 @@ class SpacyPipelineManager:
     """Singleton manager that caches and configures spaCy pipelines.
 
     Ensures models are loaded once, with unnecessary pipeline components disabled for maximum performance.
+
+    Examples:
+        >>> manager = SpacyPipelineManager()
+        >>> nlp = manager.get_pipeline(language="en")
+        >>> [token.text for token in nlp("Hello world!")]
+        ['Hello', 'world', '!']
     """
 
     DEFAULT_MODELS: ClassVar[dict[str, str]] = {
@@ -57,6 +63,13 @@ class SpacyPipelineManager:
         Raises:
             ModelNotFoundError: If the requested spaCy model is not installed.
             ValueError: If an unsupported language code is provided without a 'model_name'.
+
+        Examples:
+            >>> manager = SpacyPipelineManager()
+            >>> nlp = manager.get_pipeline("en")
+            >>> nlp_fr = manager.get_pipeline("fr", disable=("ner", "parser"))
+            >>> [token.lemma_ for token in nlp_fr("Les chats dorment.")]
+            ['le', 'chat', 'dormir', '.']
         """
         lang = language.lower()
         target_model = model_name or self.DEFAULT_MODELS.get(lang)

@@ -37,6 +37,21 @@ def compute_rhythm_metrics(
 
     Returns:
         RhythmMetrics: An instance containing sentence length variations and punctuations counts.
+
+    Examples:
+        >>> from prose_metrics.nlp.pipeline import SpacyPipelineManager
+        >>> doc = SpacyPipelineManager().get_pipeline("en")("The cat sat. It rained all day; the wind howled.")
+        >>> metrics = compute_rhythm_metrics(doc)
+        >>> metrics.avg_sentence_length
+        5.0
+        >>> metrics.short_sentence_ratio
+        1.0
+        >>> metrics.punctuation_distribution["."]
+        1
+        >>> metrics.punctuation_distribution["…"]
+        1
+        >>> compute_rhythm_metrics(doc, short_threshold=4).short_sentence_ratio
+        0.5
     """
     sentence_word_lengths: list[int] = []
 

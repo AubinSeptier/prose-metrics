@@ -10,7 +10,7 @@ A static, deterministic analyzer for literary fiction and plain prose.
 - **Zero I/O:** the package never reads files from disk; it analyzes only `str` values passed in memory.
 - **Deterministic:** the same input text and settings always produce the same report.
 - **Minimalist data model:** results are returned as native frozen `dataclasses` (`slots=True`) — no Pydantic or other infrastructure dependencies.
-- **Bilingual focus:** optimized for English (`en`) and French (`fr`) texts.
+- **Supported languages:** optimized for English (`en`) and French (`fr`) texts (other languages may work but are not guaranteed to be accurate, especially for complex linguistic features).
 
 ## Requirements
 
@@ -19,6 +19,8 @@ A static, deterministic analyzer for literary fiction and plain prose.
 - Default spaCy language models (installed separately):
   - English: `en_core_web_sm`
   - French: `fr_core_news_sm`
+
+*Notes: You can install additional spaCy models for other languages as needed or override the default model selection. Small and fast models are chosen by default for performance and resource efficiency.*
 
 ## Installation
 
@@ -73,7 +75,7 @@ By default all metrics are computed. You can restrict the analysis to a subset:
 report = analyze(text, language="en", metrics=["volume", "readability"])
 ```
 
-Available metric names: `"volume"`, `"rhythm"`, `"style"`, `"vocabulary"`, `"readability"`. Use `"all"` (default) or an empty sequence to compute everything. Metrics not requested are `None` in the resulting `TextReport`.
+Available metric names: `"volume"`, `"rhythm"`, `"style"`, `"vocabulary"`, `"readability"`, `"repetition"`, `"dialogue"`. Use `"all"` (default) or an empty sequence to compute everything. Metrics not requested are `None` in the resulting `TextReport`.
 
 ### Tunable parameters
 
@@ -82,8 +84,13 @@ Available metric names: `"volume"`, `"rhythm"`, `"style"`, `"vocabulary"`, `"rea
 | `language` | `"en"` | ISO 639-1 language code; supported pipeline defaults: `en`, `fr`. |
 | `model_name` | `None` | Explicit spaCy model name, overriding the language default. |
 | `doc` | `None` | Optional pre-parsed spaCy `Doc` to bypass re-tokenization. |
+| `metrics` | `["all"]` | List of metric names to compute; `"all"` computes everything. |
 | `mattr_window_size` | `100` | Sliding-window size for the Moving Average Type-Token Ratio. |
 | `words_per_minute` | `200` | Reading speed used for the estimated reading time. |
+| `short_threshold` | `10` | Maximum number of words in a sentence to be considered "short". |
+| `long_threshold` | `30` | Minimum number of words in a sentence to be considered "long". |
+| `use_lemmas` | `True` | Whether to use lemmatized forms for repetition detection. |
+| `repetition_window_size` | `10` | Maximum distance (in content words) for two occurrences of the same word to be considered a close repetition. |
 
 ## The report structure
 
@@ -96,6 +103,8 @@ Available metric names: `"volume"`, `"rhythm"`, `"style"`, `"vocabulary"`, `"rea
 - `style` — `StyleMetrics`
 - `vocabulary` — `VocabularyMetrics`
 - `readability` — `ReadabilityMetrics`
+- `repetition` — `RepetitionMetrics`
+- `dialogue` — `DialogueMetrics`
 
 Call `report.to_dict()` to obtain a fully nested dictionary representation.
 
@@ -143,6 +152,24 @@ Lexical richness indicators:
 
 Note: readability scores are computed via `textstat`; the Gunning Fog index is reported as `0.0` for non-English texts because it is only supported for English by `textstat`. Readability is supported for `en`, `es`, `fr`, `it`, `de`, `nl`.
 
+### Repetition (`RepetitionMetrics`)
+
+Metrics for analyzing close lexical repetition in the text:
+
+- `repetition_density`
+- `close_repetition_count`
+- `lexical_word_count` — number of content words (nouns, adjectives, verbs, adverbs) considered for repetition detection
+- `window_size` — maximum distance, in content words, for two occurrences of the same word to be considered a close repetition.
+
+### Dialogue (`DialogueMetrics`)
+
+Metrics for analyzing dialogue tag (parenthetical verb) in the text:
+
+- `dialogue_verb_count` — number of parenthetical reporting verbs detected next to dialogue spans with curated neutral and expressive speech-verb lexicons.
+- `neutral_dialogue_verb_count` — count of neutral reporting verbs (e.g., "said", "asked", "replied")
+- `expressive_dialogue_verb_count` — count of expressive reporting verbs (e.g., "whispered", "shouted", "murmured")
+- `neutral_dialogue_verb_ratio` — ratio of neutral reporting verbs to total dialogue verbs
+
 ## Architecture notes
 
 - `prose_metrics.analyzer` — orchestrates parsing and metric computation (`TextAnalyzer`, `analyze`).
@@ -151,6 +178,8 @@ Note: readability scores are computed via `textstat`; the Gunning Fog index is r
 - `prose_metrics.nlp.pipeline` — a thread-safe singleton `SpacyPipelineManager` that caches spaCy pipelines and disables unnecessary components (by default, `ner`) for performance.
 - `prose_metrics.nlp.exceptions` — package-specific exceptions.
 
-## License
+## License & GenAI use
 
 MIT — see [LICENSE](LICENSE) for details.
+
+Generative AI (GenAI) is used for development, both for code generation assistance and documentation. The package itself does not use GenAI at runtime; all analysis is deterministic and performed locally without network calls.
