@@ -3,11 +3,28 @@ name: CI
 on:
   pull_request:
     branches: [dev, main]
+    paths:
+      - '**.py'
+      - '**.toml'
+      - '**.yaml'
+      - '**.yml'
+      - '**.json'
   push:
-    branches: [dev, main]
+    branches: [dev]
+    paths:
+      - '**.py'
+      - '**.toml'
+      - '**.yaml'
+      - '**.yml'
+      - '**.json'
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  quality:
+  lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -30,6 +47,24 @@ jobs:
 
       - name: Type Check (ty)
         run: uv run ty check .
+
+  test:
+    needs: lint
+    if: ${{ success() && github.actor != 'dependabot[bot]' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.0.1
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        run: uv python install
+
+      - name: Install dependencies
+        run: uv sync --all-extras --dev
 
       - name: Run Tests (pytest)
         run: uv run pytest
