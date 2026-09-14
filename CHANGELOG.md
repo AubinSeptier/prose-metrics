@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/AubinSeptier/prose-metrics/compare/prose_metrics-v0.3.0...prose_metrics-v0.4.0) (2026-09-14)
+
+
+### Features
+
+* **analyzer:** pipe method and function for multiple texts ([#36](https://github.com/AubinSeptier/prose-metrics/issues/36)) ([8f81f70](https://github.com/AubinSeptier/prose-metrics/commit/8f81f70ed1c63f27dd7f5b8c5b9a0b6cf0c6a461))
+
 ## [0.3.0](https://github.com/AubinSeptier/prose-metrics/compare/prose_metrics-v0.2.0...prose_metrics-v0.3.0) (2026-08-30)
 
 
